@@ -1,0 +1,185 @@
+import random
+
+
+# Init the prob to 1/4
+#
+
+class Node:
+    def __init__(self, sym, prnt, tree, lvl):
+        # symbol sequence of that node
+        self.sequence = sym
+
+        # the tree in which this Node exists
+        self.tree = tree
+
+        # Parent Node
+        self.parent = prnt
+        # The edges of a node, corresponding to a new node.
+        # eg: A => The A branch from current node
+        self.children = {"A": None, "C": None, "G": None, "T": None}
+
+        # Counts
+        self.counts = {"A": 0, "C": 0, "G": 0, "T": 0}
+
+        # Used to store the weighted probability of the node
+        self.probability = 1
+        self.weighted_probability = 1
+
+        # The level of the node in the tree
+        # level = 0 is the root
+        self.level = lvl
+
+    def update_probability(self, symbol):
+        """When called will calculate the probability of the node"""
+
+        total_count = 0
+        for key, count in self.counts.items():
+            total_count += count
+
+        self.probability *= (self.counts[symbol] + 0.5) / (total_count + 2)
+
+        children_prob = 1
+        if self.level is not self.tree.depth:
+
+            for key,child in self.children.items():
+                if child is not None:
+                    children_prob *= child.probability
+            self.weighted_probability = (self.probability + children_prob)/2
+        else:
+            self.weighted_probability = self.probability
+
+    def print(self, tab):
+        # Todo: Print self, based on the depth of the node and  children
+        print(tab * self.level, self.sequence, self.counts,"Prob: " + str(self.weighted_probability))
+
+        for key, child in self.children.items():
+            if child is not None:
+                child.print(tab)
+        return
+
+
+class Tree:
+    def __init__(self):
+        self.root = Node("root", None, self, 0)
+        self.depth = 5
+
+
+    def add_data_point(self, symbol, context):
+        """Will add the data point to tree. Returns true if it already existed, false if not"""
+        dirty_nodes = self.traverse_context(symbol, context)
+        self.reweight_tree(dirty_nodes,symbol)
+
+
+    def read_file(self, file):
+
+        # TODO: Add in file reading
+        return False
+
+    def reweight_tree(self, dirtynodes, symbol):
+        for node in dirtynodes:
+            node.update_probability(symbol)
+
+        # Reweigh the root
+
+    def traverse_context(self, symbol, context):
+        # Start at the root
+        current_node = self.root
+        full_path = ""
+        dirty_nodes = []
+        depth = 1
+        # For Each symbol in the context, traverse down from the root.
+        for sym in context:
+            full_path += sym
+            if current_node.children[sym] is not None:
+                current_node = current_node.children[sym]
+            else:
+                current_node.children[sym] = Node(sym, current_node, current_node.tree, depth)
+                current_node = current_node.children[sym]
+
+            depth += 1
+            dirty_nodes.insert(0, current_node)
+            current_node.counts[symbol] += 1
+
+        return dirty_nodes
+
+
+        # Add in the probabilty update so as the recursion deconsturcts it updates the probability
+
+    def print(self, tab):
+        print("Root: {:d}".format(self.root.probability))
+
+        for key, child in self.root.children.items():
+            if child is not None:
+                child.print(tab)
+
+
+def int_to_ACGT(int_list):
+    """Helper Function - Allows for the randomly generated sequence to be converted into chars"""
+    ACGT_list = []
+    for x in int_list:
+        if x == 1:
+            ACGT_list.append("A")
+        elif x == 2:
+            ACGT_list.append("C")
+        elif x == 3:
+            ACGT_list.append("G")
+        elif x == 4:
+            ACGT_list.append("T")
+
+    return ACGT_list
+
+
+def num_to_ACFT(x):
+    if x == 1:
+        return "A"
+    elif x == 2:
+        return "C"
+    elif x == 3:
+        return "G"
+    elif x == 4:
+        return"T"
+
+def main():
+    # Allows for user input to interact with the functions above
+    test_tree = Tree()
+
+    # Table of commands
+    print("Commands:")
+    print("a - Add a node:")
+    print("r - Add random node:")
+    print("p - Print tree:")
+    print("c - show commands")
+
+    while 1:
+        command = input('Enter your command: ')
+
+        # Add a specific sequence
+        if command == "a" or command == "A":
+            print("    Add:")
+            # TODO: Add a way to capture a sequence of inputs
+
+        # Adds a random sequence to the tree
+        elif command == "r" or command == "R":
+            print("    Random:")
+            context = []
+            for x in range(0, test_tree.depth):
+                context.append(random.randint(1, 4))
+            context = int_to_ACGT(context)
+            symbol = num_to_ACFT(random.randint(1,4))
+            test_tree.add_data_point(symbol, context)
+            print(context, "  symbol: ", symbol)
+
+        # Print out the tree
+        elif command == "p" or command == "P":
+            print("     Print:")
+            test_tree.print(input('     Enter your tab char: '))
+
+        elif command == "c" or command == "C":
+            print("Commands:")
+            print("a - Add a node:")
+            print("r - Add random node:")
+            print("p - Print tree:")
+            print("c - show commands")
+
+
+if __name__ == "__main__": main()
