@@ -1,5 +1,6 @@
 import random
 import gzip
+import math
 
 from Bio.Seq import Seq
 from Bio import SeqIO
@@ -22,15 +23,35 @@ class Node:
         self.counts = {"A": 0, "C": 0, "G": 0, "T": 0}
 
         # Used to store the weighted probability of the node
-        self.probability = 1
-        self.weighted_probability = 1
+        self.probability = 0 # changed
+        self.weighted_probability = 0 # Changed
 
         # The level of the node in the tree
         # level = 0 is the root
         self.level = lvl
 
-    def update_probability(self, symbol):
+    def update_probability_log(self, symbol):
         """When called will calculate the probability of the node"""
+
+        total_count = 0
+        for key, count in self.counts.items():
+            total_count += count
+
+        self.probability += math.log((self.counts[symbol] + 0.5) / (total_count + 2), 2) # Base 2 log
+        # changed
+
+        children_prob = 0
+        # changed
+
+        if self.level is not self.tree.depth:
+            for key, child in self.children.items():
+                if child is not None:
+                    children_prob += child.probability
+            self.weighted_probability = (children_prob + math.log(1 + pow(2,(self.probability - children_prob)),2)  + math.log(1/2, 2))  # log(2,2) is equivalent to multiplying it all 1/2
+        else:
+            self.weighted_probability = self.probability
+
+    def update_probability(self, symbol):
 
         total_count = 0
         for key, count in self.counts.items():
@@ -96,9 +117,9 @@ class Tree:
         self.root.counts[symbol] += 1
 
         for node in dirtynodes:
-            node.update_probability(symbol)
+            node.update_probability_log(symbol)
 
-        self.root.update_probability(symbol);
+        self.root.update_probability_log(symbol);
 
     def traverse_context(self, symbol, context):
         # Start at the root
@@ -158,19 +179,20 @@ def num_to_ACFT(x):
     elif x == 4:
         return "T"
 
+def print_commands():
+    print("Commands:")
+    print("a - Add a node:")
+    print("r - Add random node:")
+    print("p - Print tree:")
+    print("l - load file")
+    print("c - show commands")
 
 def main():
     # Allows for user input to interact with the functions above
     test_tree = Tree()
 
     # Table of commands
-    print("Commands:")
-    print("a - Add a node:")
-    print("r - Add random node:")
-    print("p - Print tree:")
-    print("s - Create a sequence")
-    print("l - load file")
-    print("c - show commands")
+    print_commands()
 
     while 1:
         command = input('Enter your command: ')
@@ -196,11 +218,6 @@ def main():
             print("     Print:")
             test_tree.print(input('     Enter your tab char: '))
 
-        elif command == "s" or command == "S":
-            my_seq = Seq("AGTACACTGGT")
-            print(my_seq)
-            print(my_seq.complement())
-
         elif command == "l" or command == "L":
             print("Loading from GenBank: ")
 
@@ -211,13 +228,6 @@ def main():
             test_tree.read_file(first_record)
 
         elif command == "c" or command == "C":
-            print("Commands:")
-            print("a - Add a node:")
-            print("r - Add random node:")
-            print("p - Print tree:")
-            print("s - Create a sequence")
-            print("l - load file")
-            print("c - show commands")
-
+            print_commands()
 
 if __name__ == "__main__": main()
