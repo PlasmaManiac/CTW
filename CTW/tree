@@ -1,8 +1,8 @@
 import random
+import gzip
 
-
-# Init the prob to 1/4
-#
+from Bio.Seq import Seq
+from Bio import SeqIO
 
 class Node:
     def __init__(self, sym, prnt, tree, lvl):
@@ -40,17 +40,16 @@ class Node:
 
         children_prob = 1
         if self.level is not self.tree.depth:
-
-            for key,child in self.children.items():
+            for key, child in self.children.items():
                 if child is not None:
                     children_prob *= child.probability
-            self.weighted_probability = (self.probability + children_prob)/2
+            self.weighted_probability = (self.probability + children_prob) / 2
         else:
             self.weighted_probability = self.probability
 
     def print(self, tab):
         # Todo: Print self, based on the depth of the node and  children
-        print(tab * self.level, self.sequence, self.counts,"Prob: " + str(self.weighted_probability))
+        print(tab * self.level, self.sequence, "Prob: " + str(self.weighted_probability))
 
         for key, child in self.children.items():
             if child is not None:
@@ -63,23 +62,43 @@ class Tree:
         self.root = Node("root", None, self, 0)
         self.depth = 5
 
-
     def add_data_point(self, symbol, context):
         """Will add the data point to tree. Returns true if it already existed, false if not"""
         dirty_nodes = self.traverse_context(symbol, context)
-        self.reweight_tree(dirty_nodes,symbol)
-
+        self.reweight_tree(dirty_nodes, symbol)
 
     def read_file(self, file):
 
-        # TODO: Add in file reading
+        file_seq = file.seq
+
+        print(file_seq)
+
+        context = []
+        symbol = ""
+        for index, symbol in enumerate(file_seq):
+            if len(context) is not self.depth:
+                #  Add to the context
+                context.insert(0, symbol)
+            else:
+                #  Add to the tree
+                print("context: ", context)
+                print("symbol: ", symbol)
+
+                context.pop();
+                context.insert(0, symbol)
+
+                self.add_data_point(symbol,context)
+
         return False
 
     def reweight_tree(self, dirtynodes, symbol):
+
+        self.root.counts[symbol] += 1
+
         for node in dirtynodes:
             node.update_probability(symbol)
 
-        # Reweigh the root
+        self.root.update_probability(symbol);
 
     def traverse_context(self, symbol, context):
         # Start at the root
@@ -106,7 +125,7 @@ class Tree:
         # Add in the probabilty update so as the recursion deconsturcts it updates the probability
 
     def print(self, tab):
-        print("Root: {:d}".format(self.root.probability))
+        print("Root: ", self.root.probability, " ", self.root.counts)
 
         for key, child in self.root.children.items():
             if child is not None:
@@ -137,7 +156,8 @@ def num_to_ACFT(x):
     elif x == 3:
         return "G"
     elif x == 4:
-        return"T"
+        return "T"
+
 
 def main():
     # Allows for user input to interact with the functions above
@@ -148,6 +168,8 @@ def main():
     print("a - Add a node:")
     print("r - Add random node:")
     print("p - Print tree:")
+    print("s - Create a sequence")
+    print("l - load file")
     print("c - show commands")
 
     while 1:
@@ -165,7 +187,7 @@ def main():
             for x in range(0, test_tree.depth):
                 context.append(random.randint(1, 4))
             context = int_to_ACGT(context)
-            symbol = num_to_ACFT(random.randint(1,4))
+            symbol = num_to_ACFT(random.randint(1, 4))
             test_tree.add_data_point(symbol, context)
             print(context, "  symbol: ", symbol)
 
@@ -174,11 +196,27 @@ def main():
             print("     Print:")
             test_tree.print(input('     Enter your tab char: '))
 
+        elif command == "s" or command == "S":
+            my_seq = Seq("AGTACACTGGT")
+            print(my_seq)
+            print(my_seq.complement())
+
+        elif command == "l" or command == "L":
+            print("Loading from GenBank: ")
+
+            record_iterator = SeqIO.parse("ls_orchid.gbk", "genbank")
+
+            first_record = next(record_iterator)
+            #  print(first_record)
+            test_tree.read_file(first_record)
+
         elif command == "c" or command == "C":
             print("Commands:")
             print("a - Add a node:")
             print("r - Add random node:")
             print("p - Print tree:")
+            print("s - Create a sequence")
+            print("l - load file")
             print("c - show commands")
 
 
