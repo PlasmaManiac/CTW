@@ -1,9 +1,9 @@
-import random
-import gzip
 import math
+import random
+from tkinter.filedialog import askopenfilename
 
-from Bio.Seq import Seq
 from Bio import SeqIO
+
 
 class Node:
     def __init__(self, sym, prnt, tree, lvl):
@@ -23,8 +23,8 @@ class Node:
         self.counts = {"A": 0, "C": 0, "G": 0, "T": 0}
 
         # Used to store the weighted probability of the node
-        self.probability = 0 # changed
-        self.weighted_probability = 0 # Changed
+        self.probability = 0  # changed
+        self.weighted_probability = 0  # Changed
 
         # The level of the node in the tree
         # level = 0 is the root
@@ -37,7 +37,7 @@ class Node:
         for key, count in self.counts.items():
             total_count += count
 
-        self.probability += math.log((self.counts[symbol] + 0.5) / (total_count + 2), 2) # Base 2 log
+        self.probability += math.log((self.counts[symbol] + 0.5) / (total_count + 2), 2)  # Base 2 log
         # changed
 
         children_prob = 0
@@ -47,7 +47,9 @@ class Node:
             for key, child in self.children.items():
                 if child is not None:
                     children_prob += child.probability
-            self.weighted_probability = (children_prob + math.log(1 + pow(2,(self.probability - children_prob)),2)  + math.log(1/2, 2))  # log(2,2) is equivalent to multiplying it all 1/2
+            self.weighted_probability = (
+            children_prob + math.log(1 + pow(2, (self.probability - children_prob)), 2) + math.log(1 / 2,
+                                                                                                   2))  # log(2,2) is equivalent to multiplying it all 1/2
         else:
             self.weighted_probability = self.probability
 
@@ -79,9 +81,10 @@ class Node:
 
 
 class Tree:
-    def __init__(self):
+    def __init__(self, name, depth):
+        self.name = name
         self.root = Node("root", None, self, 0)
-        self.depth = 5
+        self.depth = depth
 
     def add_data_point(self, symbol, context):
         """Will add the data point to tree. Returns true if it already existed, false if not"""
@@ -95,22 +98,20 @@ class Tree:
         print(file_seq)
 
         context = []
-        symbol = ""
+
         for index, symbol in enumerate(file_seq):
             if len(context) is not self.depth:
                 #  Add to the context
                 context.insert(0, symbol)
             else:
                 #  Add to the tree
-                print("context: ", context)
-                print("symbol: ", symbol)
+                #  print("context: ", context)
+                #  print("symbol: ", symbol)
 
-                context.pop();
+                self.add_data_point(symbol, context)
+
+                context.pop()
                 context.insert(0, symbol)
-
-                self.add_data_point(symbol,context)
-
-        return False
 
     def reweight_tree(self, dirtynodes, symbol):
 
@@ -119,7 +120,7 @@ class Tree:
         for node in dirtynodes:
             node.update_probability_log(symbol)
 
-        self.root.update_probability_log(symbol);
+        self.root.update_probability_log(symbol)
 
     def traverse_context(self, symbol, context):
         # Start at the root
@@ -152,6 +153,40 @@ class Tree:
             if child is not None:
                 child.print(tab)
 
+    def commands(self, command):
+        # Adds a random sequence to the tree
+        if command == "r" or command == "R":
+            print("    Random:")
+            context = []
+            for x in range(0, self.depth):
+                context.append(random.randint(1, 4))
+            context = int_to_ACGT(context)
+            symbol = num_to_ACFT(random.randint(1, 4))
+            self.add_data_point(symbol, context)
+            print(context, "  symbol: ", symbol)
+
+        # Print out the tree
+        elif command == "p" or command == "P":
+            print("     Print:")
+            self.print(input('     Enter your tab char: '))
+
+        elif command == "l" or command == "L":
+            print("Loading from GenBank: ")
+
+            filename = askopenfilename()
+
+            print(filename)
+
+            record_iterator = SeqIO.parse("ls_orchid.gbk", "genbank")
+
+            first_record = next(record_iterator)
+            #  print(first_record)
+            self.read_file(first_record)
+
+            record_iterator.close();
+
+        elif command == "c" or command == "C":
+            print_tree_commands()
 
 def int_to_ACGT(int_list):
     """Helper Function - Allows for the randomly generated sequence to be converted into chars"""
@@ -168,7 +203,6 @@ def int_to_ACGT(int_list):
 
     return ACGT_list
 
-
 def num_to_ACFT(x):
     if x == 1:
         return "A"
@@ -179,55 +213,84 @@ def num_to_ACFT(x):
     elif x == 4:
         return "T"
 
+def print_tree_commands():
+    print("Commands:")
+    print("a - Add a node")
+    print("r - Add random node")
+    print("p - Print tree")
+    print("l - Load file into tree")
+    print("c - Show commands")
+    print("x - Exit current tree")
+
 def print_commands():
     print("Commands:")
-    print("a - Add a node:")
-    print("r - Add random node:")
-    print("p - Print tree:")
-    print("l - load file")
+    print("a - Add a new tree")
+    print("o - Open an existing tree")
+    print("s - List existing trees")
+    print("d - Delete a tree")
     print("c - show commands")
+
+
+def print_trees(trees):
+
+    print("\n Listing all current trees: ")
+    print("\t Name:", "\t\t| Root Prob.")
+    print("\t ______________________")
+    for key in trees:
+        print("\t", key,"\t \t", trees[key].root.probability)
+
 
 def main():
     # Allows for user input to interact with the functions above
-    test_tree = Tree()
+    test_tree = Tree("Test", 5)
+
+    trees = dict()
+    current_tree = None
+
+    trees[test_tree.name] = test_tree
 
     # Table of commands
     print_commands()
 
+    print_trees(trees)
+
     while 1:
-        command = input('Enter your command: ')
 
-        # Add a specific sequence
-        if command == "a" or command == "A":
-            print("    Add:")
-            # TODO: Add a way to capture a sequence of inputs
+        if current_tree is None:
 
-        # Adds a random sequence to the tree
-        elif command == "r" or command == "R":
-            print("    Random:")
-            context = []
-            for x in range(0, test_tree.depth):
-                context.append(random.randint(1, 4))
-            context = int_to_ACGT(context)
-            symbol = num_to_ACFT(random.randint(1, 4))
-            test_tree.add_data_point(symbol, context)
-            print(context, "  symbol: ", symbol)
+            command = input('Enter your command: ')
+            if command == "a":
+                tree_name  = input("Name of the new tree: ")
+                depth_name = input("Depth:")
+                trees[tree_name] = Tree(tree_name,int(depth_name))
+                print_trees(trees)
 
-        # Print out the tree
-        elif command == "p" or command == "P":
-            print("     Print:")
-            test_tree.print(input('     Enter your tab char: '))
+            elif command == "o":
+                name = input("\tWhich tree do you want to open?\n\t")
+                current_tree = trees[name]
+                print_tree_commands()
 
-        elif command == "l" or command == "L":
-            print("Loading from GenBank: ")
+            elif command == "s":
+                print_trees(trees)
 
-            record_iterator = SeqIO.parse("ls_orchid.gbk", "genbank")
+            elif command == "d":
+                name = input("\tWhich tree do you want to remove?\n\t")
+                trees.pop(name, None)
+                print_trees(trees)
 
-            first_record = next(record_iterator)
-            #  print(first_record)
-            test_tree.read_file(first_record)
+            elif command == "c":
+                print_commands()
 
-        elif command == "c" or command == "C":
-            print_commands()
+        else:
+            print("\n Currently in tree: ",current_tree.name)
+            command = input("\t Enter your command: ")
+
+            if command is "x" or command is "X":
+                current_tree = None
+                print_trees(trees)
+
+            else:
+                current_tree.commands(command)
+
 
 if __name__ == "__main__": main()
