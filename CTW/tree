@@ -8,7 +8,7 @@ from Bio import SeqIO
 class Node:
     def __init__(self, sym, prnt, tree, lvl):
         # symbol sequence of that node
-        self.sequence = sym
+        self.symbol = sym
 
         # the tree in which this Node exists
         self.tree = tree
@@ -23,8 +23,8 @@ class Node:
         self.counts = {"A": 0, "C": 0, "G": 0, "T": 0}
 
         # Used to store the weighted probability of the node
-        self.probability = 0  # changed
-        self.weighted_probability = 0  # Changed
+        self.probability = 0
+        self.weighted_probability = 0
 
         # The level of the node in the tree
         # level = 0 is the root
@@ -72,7 +72,7 @@ class Node:
 
     def print(self, tab):
         # Todo: Print self, based on the depth of the node and  children
-        print(tab * self.level, self.sequence, "Prob: " + str(self.weighted_probability))
+        print(tab * self.level, self.symbol, "Prob: " + str(self.weighted_probability))
 
         for key, child in self.children.items():
             if child is not None:
@@ -183,7 +183,7 @@ class Tree:
             #  print(first_record)
             self.read_file(first_record)
 
-            record_iterator.close();
+            record_iterator.close()
 
         elif command == "c" or command == "C":
             print_tree_commands()
@@ -234,10 +234,10 @@ def print_commands():
 def print_trees(trees):
 
     print("\n Listing all current trees: ")
-    print("\t Name:", "\t\t| Root Prob.")
+    print("\t Name:","\t Depth", "\t\t| Root Prob.")
     print("\t ______________________")
     for key in trees:
-        print("\t", key,"\t \t", trees[key].root.probability)
+        print("\t", key,"\t \t", trees[key].depth, "\t\t" ,trees[key].root.probability)
 
 
 def main():
