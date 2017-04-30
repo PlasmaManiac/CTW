@@ -18,7 +18,7 @@ An explanation of each function and object within the project
 
 ### Node(self, sym, prnt, tree, lvl):
 
-* 'sym' is the symbol that is traversed from the parent to reach this node.
+* `sym` is the symbol that is traversed from the parent to reach this node.
 
 * `prnt` is parent node to this  node (None if it is the root)
 
@@ -33,4 +33,22 @@ This object also has some number of stored information
 * `self.probability` stores the KT - Estimator probability of that node.
 * `self.weighted_probability` stores the weighted probability of the  node.
 
-### update_probility(self, symbol)
+### update_probility_log(self, symbol)
+This function will update both the  `self.probability` and `self.weighted_probability` of the node based on the inputted `symbol`. This function does not output anything.
+
+### print(self, tab):
+Will print information about the node and its children. The `tab` input determines what symbol is used as indents between levels of the tree
+
+Example Print out:
+(using tab as a space)
+```
+C Prob: -30.108163475962257
+ A Prob: -9.281181752544054
+  A Prob: -5.415037499278844
+  G Prob: -2.415037499278844
+  C Prob: -1.0
+```
+### Tree(self, name, depth)
+
+* `self` the name given to this tree object
+* `depth` the maximum depth of the tree

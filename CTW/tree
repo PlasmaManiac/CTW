@@ -38,10 +38,8 @@ class Node:
             total_count += count
 
         self.probability += math.log((self.counts[symbol] + 0.5) / (total_count + 2), 2)  # Base 2 log
-        # changed
 
         children_prob = 0
-        # changed
 
         if self.level is not self.tree.depth:
             for key, child in self.children.items():
