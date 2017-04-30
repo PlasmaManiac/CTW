@@ -85,7 +85,7 @@ class Tree:
         self.depth = depth
 
     def add_data_point(self, symbol, context):
-        """Will add the data point to tree. Returns true if it already existed, false if not"""
+        """Will add the data point to tree."""
         dirty_nodes = self.traverse_context(symbol, context)
         self.reweight_tree(dirty_nodes, symbol)
 
@@ -140,9 +140,6 @@ class Tree:
             current_node.counts[symbol] += 1
 
         return dirty_nodes
-
-
-        # Add in the probabilty update so as the recursion deconsturcts it updates the probability
 
     def print(self, tab):
         print("Root: ", self.root.probability, " ", self.root.counts)
