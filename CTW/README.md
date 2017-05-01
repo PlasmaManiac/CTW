@@ -9,7 +9,7 @@ You will need to install these packages to run the project on your own Python de
 
 ### Prerequisites
 
-* **BioPython** - link[http://biopython.org/]
+* **BioPython** - [link](http://biopython.org/)
 
 
 ## Documentation
@@ -83,3 +83,33 @@ Will call the `Node.print` function on its root and therefore printing the whole
 
 ### commands(self, command)
 Used when interfacing from the console. Takes in the `command` and calls the appropriate functions.
+
+
+## Console Commands:
+
+### Tree-Manager Commands
+```
+Commands:
+a - Add a new tree
+o - Open an existing tree
+s - List existing trees
+d - Delete a tree
+c - show commands
+
+```
+### a - Add a new tree:
+  Will prompt you too name and create a new tree with a inputted depth
+
+### o - Open an existing tree
+  Open a tree, allowing for specific control of that tree
+
+### Tree Commands
+```
+Commands:
+a - Add a node
+r - Add random node
+p - Print tree
+l - Load file into tree
+c - Show commands
+x - Exit current tree
+```
