@@ -1,8 +1,29 @@
 import math
 import random
-from tkinter.filedialog import askopenfilename
+import sys
+import gzip
 
+from tkinter.filedialog import askopenfilename
 from Bio import SeqIO
+
+
+def print_tree_commands():
+    print("Commands:")
+    print("a - Add a node")
+    print("r - Add random node")
+    print("p - Print tree")
+    print("l - Load file into tree")
+    print("c - Show commands")
+    print("x - Exit current tree")
+
+
+def print_commands():
+    print("Commands:")
+    print("a - Add a new tree")
+    print("o - Open an existing tree")
+    print("s - List existing trees")
+    print("d - Delete a tree")
+    print("c - show commands")
 
 
 class Node:
@@ -37,7 +58,8 @@ class Node:
         for key, count in self.counts.items():
             total_count += count
 
-        self.probability += math.log((self.counts[symbol] + 0.5) / (total_count + 2), 2)  # Base 2 log
+        # Base 2 log
+        self.probability += math.log((self.counts[symbol] + self.tree.alpha) / (total_count + 4*self.tree.alpha), 2)
 
         children_prob = 0
 
@@ -45,9 +67,10 @@ class Node:
             for key, child in self.children.items():
                 if child is not None:
                     children_prob += child.probability
+            # log(2,2) is equivalent to multiplying it all 1/2
             self.weighted_probability = (
-            children_prob + math.log(1 + pow(2, (self.probability - children_prob)), 2) + math.log(1 / 2,
-                                                                                                   2))  # log(2,2) is equivalent to multiplying it all 1/2
+                children_prob + math.log(1 + pow(2, (self.probability - children_prob)), 2) + math.log(1 / 2, 2))
+
         else:
             self.weighted_probability = self.probability
 
@@ -84,10 +107,29 @@ class Tree:
         self.root = Node("root", None, self, 0)
         self.depth = depth
 
+        if depth > 11:
+            self.alpha = 0.05
+        else:
+            self.alpha = 0.5
+
     def add_data_point(self, symbol, context):
         """Will add the data point to tree."""
         dirty_nodes = self.traverse_context(symbol, context)
         self.reweight_tree(dirty_nodes, symbol)
+        self.add_inverted_point(symbol, context)
+
+    def add_inverted_point(self, symbol, context):
+        other_context = list(context)
+        other_context.insert(0, symbol)
+        # print(other_context);
+
+        reverse = inverted_complement(other_context)
+        new_symbol = reverse.pop(0)
+
+        # print(reverse, "Symbol: ", new_symbol)
+
+        dirty_nodes = self.traverse_context(new_symbol, reverse)
+        self.reweight_tree(dirty_nodes, new_symbol)
 
     def read_file(self, file):
 
@@ -103,8 +145,8 @@ class Tree:
                 context.insert(0, symbol)
             else:
                 #  Add to the tree
-                #  print("context: ", context)
-                #  print("symbol: ", symbol)
+                # print("context: ", context)
+                # print("symbol: ", symbol)
 
                 self.add_data_point(symbol, context)
 
@@ -128,13 +170,13 @@ class Tree:
         depth = 1
         # For Each symbol in the context, traverse down from the root.
         for sym in context:
+
             full_path += sym
             if current_node.children[sym] is not None:
                 current_node = current_node.children[sym]
             else:
                 current_node.children[sym] = Node(sym, current_node, current_node.tree, depth)
                 current_node = current_node.children[sym]
-
             depth += 1
             dirty_nodes.insert(0, current_node)
             current_node.counts[symbol] += 1
@@ -156,9 +198,9 @@ class Tree:
             for x in range(0, self.depth):
                 context.append(random.randint(1, 4))
             context = int_to_ACGT(context)
-            symbol = num_to_ACFT(random.randint(1, 4))
-            self.add_data_point(symbol, context)
+            symbol = num_to_ACGT(random.randint(1, 4))
             print(context, "  symbol: ", symbol)
+            self.add_data_point(symbol, context)
 
         # Print out the tree
         elif command == "p" or command == "P":
@@ -166,22 +208,143 @@ class Tree:
             self.print(input('     Enter your tab char: '))
 
         elif command == "l" or command == "L":
-            print("Loading from GenBank: ")
+            print("Loading a file: ")
+            # TODO: Add in a way to manage the records, so to load a specific record
 
             filename = askopenfilename()
-
             print(filename)
 
-            record_iterator = SeqIO.parse("ls_orchid.gbk", "genbank")
+            file_extension = filename.split(".")[-1]
+            iterator = None
 
-            first_record = next(record_iterator)
-            #  print(first_record)
-            self.read_file(first_record)
+            if file_extension == "gbk":
+                iterator = SeqIO.parse(filename, "genbank")
+            elif file_extension == "gz":
+                handle = gzip.open(filename, "rt")
+                iterator = SeqIO.parse(handle, "genbank")
 
-            record_iterator.close()
+            record = next(iterator)
+            print(record.seq)
+
+            self.read_file(record)
+
+            iterator.close()
 
         elif command == "c" or command == "C":
             print_tree_commands()
+
+
+class Competition:
+    def __init__(self, max_depth, blocksize = 200):
+        self.max_depth = max_depth
+        self.trees = dict()
+        self.blocksize = blocksize
+
+        for i in range(1, max_depth):
+            self.trees[i] = Tree("Depth: " + str(i), i)
+        #  Useful to have to a list of all the roots of the trees.
+        #  This allows for easy comparisons between root probability values
+        self.roots = dict()
+
+        for key, value in self.trees.items():
+            self.roots[key] = value.root
+
+    def read_block(self,block):
+        context = []
+        previous_root_prob = []
+        root_prob = []
+
+        for key, value in self.trees.items():
+            previous_root_prob.append(value.root.weighted_probability)
+
+        for index, symbol in enumerate(block):
+            if len(context) is not self.max_depth:
+                #  Add to the context
+                context.insert(0, symbol)
+            else:
+                #  Add to the tree
+                #  print("context: ", context)
+                #  print("symbol: ", symbol)
+
+                # Add to all to trees
+                self.add_to_all(symbol, context)
+
+                context.pop()
+                context.insert(0, symbol)
+
+        difference = list()
+        for key, value in self.trees.items():
+            root_prob.append(value.root.weighted_probability)
+            difference.append(value.root.weighted_probability - previous_root_prob[-key])
+
+        # print( "\n",previous_root_prob, "\n")
+        # print(root_prob, "\n")
+        # print(difference, "\n")
+        # print("MAX: ", max(difference))
+        # print("MIN: ", min(difference))
+
+        return difference.index(max(difference)) + 1, max(difference)
+
+    def add_to_all(self,symbol,context_full):
+        #  check if the context is of enough depth.
+        #  Make sure to add it at lower depths
+
+        #  sys.stdout.write("\rAdding symbol: %s With context: %s " % (symbol, context_full))
+
+        for key,value in self.trees.items():
+            context = context_full[:key]
+            # print("Depth: ", key,"context: ",context)
+            value.add_data_point(symbol,context)
+
+    def read_file(self,file_handle):
+        context = []
+        records = dict()
+
+        for r in SeqIO.parse(file_handle, "gb"):
+            print(r.id)
+            print(len(r.seq))
+            records[r.id] = r.seq
+
+        file_seq = None
+        for key,value in records.items():
+            sys.stdout.write("\rAdding record with ID: %s" % key)
+            file_seq = value
+        print("\n")
+
+        # TODO: Add a counter for the block size, so that it will send only the correct sized block
+        # TODO: Add a list, of the/dic/something to keep track of best depth and its value
+
+        block = list()
+        blockseq = list()
+        symcounter = 0
+
+        for index, symbol in enumerate(file_seq):
+            printProgressBar(index, 400000)
+
+            if symbol is "N":
+                continue
+
+            if symcounter > 400000:
+                break
+
+            block.append(symbol)
+            symcounter += 1
+
+            if len(block) is self.blocksize:
+                blockseq.append(self.read_block(block))
+                del block[:]
+
+        print('\n', len(blockseq))
+        print_to_file(blockseq)
+
+
+def print_to_file(output, file ="out.txt"):
+    with open(file, 'w') as f:
+        out = ""
+        for item in output:
+            out += str(item[0]) + ", " + str(item[1]) + "; \n"
+        f.write(out)
+
 
 def int_to_ACGT(int_list):
     """Helper Function - Allows for the randomly generated sequence to be converted into chars"""
@@ -198,7 +361,29 @@ def int_to_ACGT(int_list):
 
     return ACGT_list
 
-def num_to_ACFT(x):
+
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    sys.stdout.write('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix))
+    # Print New Line on Complete
+    if iteration == total:
+        print()
+
+
+def num_to_ACGT(x):
     if x == 1:
         return "A"
     elif x == 2:
@@ -208,31 +393,30 @@ def num_to_ACFT(x):
     elif x == 4:
         return "T"
 
-def print_tree_commands():
-    print("Commands:")
-    print("a - Add a node")
-    print("r - Add random node")
-    print("p - Print tree")
-    print("l - Load file into tree")
-    print("c - Show commands")
-    print("x - Exit current tree")
-
-def print_commands():
-    print("Commands:")
-    print("a - Add a new tree")
-    print("o - Open an existing tree")
-    print("s - List existing trees")
-    print("d - Delete a tree")
-    print("c - show commands")
-
 
 def print_trees(trees):
-
     print("\n Listing all current trees: ")
-    print("\t Name:","\t Depth", "\t\t| Root Prob.")
-    print("\t ______________________")
+    print("\t Name:", "\t Depth", "\t\t| Root Prob.|\t\t Counts")
+    print("\t ____________________________________________________")
     for key in trees:
-        print("\t", key,"\t \t", trees[key].depth, "\t\t" ,trees[key].root.probability)
+        print("\t", key, "\t \t", trees[key].depth, "\t\t", trees[key].root.weighted_probability,"\t\t",  trees[key].root.counts)
+
+
+def inverted_complement(symbols):
+    reverse = [None] * len(symbols)
+
+    for i, sym in enumerate(symbols):
+        if sym == "A":
+            reverse[i] = "T"
+        elif sym == "T":
+            reverse[i] = "A"
+        elif sym == "G":
+            reverse[i] = "C"
+        elif sym == "C":
+            reverse[i] = "G"
+
+    reverse.reverse()
+    return reverse
 
 
 def main():
@@ -240,6 +424,14 @@ def main():
     test_tree = Tree("Test", 5)
 
     trees = dict()
+    print("Testing competition: ")
+    test = Competition(10)
+
+    handle = gzip.open("hs_alt_CHM1_1.1_chr22.gbk.gz", "rt")
+    # test.read_file(handle)
+
+    print_trees(test.trees)
+
     current_tree = None
 
     trees[test_tree.name] = test_tree
@@ -249,15 +441,18 @@ def main():
 
     print_trees(trees)
 
+    #  for i in range(1, 1000):
+       #  sys.stdout.write("\rDoing thing %i" % i)
+
     while 1:
 
         if current_tree is None:
 
             command = input('Enter your command: ')
             if command == "a":
-                tree_name  = input("Name of the new tree: ")
+                tree_name = input("Name of the new tree: ")
                 depth_name = input("Depth:")
-                trees[tree_name] = Tree(tree_name,int(depth_name))
+                trees[tree_name] = Tree(tree_name, int(depth_name))
                 print_trees(trees)
 
             elif command == "o":
@@ -277,7 +472,7 @@ def main():
                 print_commands()
 
         else:
-            print("\n Currently in tree: ",current_tree.name)
+            print("\n Currently in tree: ", current_tree.name)
             command = input("\t Enter your command: ")
 
             if command is "x" or command is "X":
