@@ -43,36 +43,53 @@ class Node:
         # Counts
         self.counts = {"A": 0, "C": 0, "G": 0, "T": 0}
 
+        # Estimated probability given the KT Estimator
+        self.estimated_probability = 0
+
         # Used to store the weighted probability of the node
-        self.probability = 0
         self.weighted_probability = 0
 
         # The level of the node in the tree
         # level = 0 is the root
         self.level = lvl
 
+    def get_weighted_prob(self, depth):
+
+        if depth is 0:
+            return self.estimated_probability
+        else:
+            children_prob = 0
+            for key, child in self.children.items():
+                if child is not None:
+                    children_prob += child.get_weighted_prob(depth - 1)
+
+        return children_prob + math.log(1 + pow(2, (self.estimated_probability - children_prob)), 2) + math.log(1/2, 2)
+
     def update_probability_log(self, symbol):
         """When called will calculate the probability of the node"""
 
         total_count = 0
+
         for key, count in self.counts.items():
             total_count += count
 
         # Base 2 log
-        self.probability += math.log((self.counts[symbol] + self.tree.alpha) / (total_count + 4*self.tree.alpha), 2)
+        self.estimated_probability += math.log((self.counts[symbol] + self.tree.alpha)
+                                               / (total_count + 4*self.tree.alpha), 2)
 
         children_prob = 0
 
         if self.level is not self.tree.depth:
             for key, child in self.children.items():
                 if child is not None:
-                    children_prob += child.probability
+                    children_prob += child.weighted_probability
             # log(2,2) is equivalent to multiplying it all 1/2
             self.weighted_probability = (
-                children_prob + math.log(1 + pow(2, (self.probability - children_prob)), 2) + math.log(1 / 2, 2))
-
+                children_prob
+                + math.log(1 + pow(2, (self.estimated_probability - children_prob)), 2)
+                + math.log(1 / 2, 2))
         else:
-            self.weighted_probability = self.probability
+            self.weighted_probability = self.estimated_probability
 
     def update_probability(self, symbol):
 
@@ -80,16 +97,16 @@ class Node:
         for key, count in self.counts.items():
             total_count += count
 
-        self.probability *= (self.counts[symbol] + 0.5) / (total_count + 2)
+        self.estimated_probability *= (self.counts[symbol] + 0.5) / (total_count + 2)
 
         children_prob = 1
         if self.level is not self.tree.depth:
             for key, child in self.children.items():
                 if child is not None:
                     children_prob *= child.probability
-            self.weighted_probability = (self.probability + children_prob) / 2
+            self.weighted_probability = (self.estimated_probability + children_prob) / 2
         else:
-            self.weighted_probability = self.probability
+            self.weighted_probability = self.estimated_probability
 
     def print(self, tab):
         # Todo: Print self, based on the depth of the node and  children
@@ -111,6 +128,25 @@ class Tree:
             self.alpha = 0.05
         else:
             self.alpha = 0.5
+
+    def read_weighted_probability(self, depth):
+        """
+        Will calculate and return the weighted probability of a CTW with given depth
+        :param depth: The depth of the tree you want to read
+        :return: A probability in log base 2 of the CTW of given depth
+        """
+
+        if depth > self.depth:
+            return None
+        if depth < 1:
+            return None
+
+        children_prob = 0
+        for key, child in self.root.children.items():
+            if child is not None:
+                children_prob += child.get_weighted_prob(depth - 1)
+
+        return children_prob + math.log(1 + pow(2, (self.root.estimated_probability - children_prob)), 2) + math.log(1 / 2, 2)
 
     def add_data_point(self, symbol, context):
         """Will add the data point to tree."""
@@ -184,7 +220,7 @@ class Tree:
         return dirty_nodes
 
     def print(self, tab):
-        print("Root: ", self.root.probability, " ", self.root.counts)
+        print("Root: ", self.root.weighted_probability, " ", self.root.counts)
 
         for key, child in self.root.children.items():
             if child is not None:
@@ -235,9 +271,10 @@ class Tree:
 
 
 class Competition:
-    def __init__(self, max_depth, blocksize = 200):
+    def __init__(self, max_depth, blocksize=200):
         self.max_depth = max_depth
         self.trees = dict()
+        self.tree = Tree("MD:" + str(max_depth), max_depth)
         self.blocksize = blocksize
 
         for i in range(1, max_depth):
@@ -249,13 +286,13 @@ class Competition:
         for key, value in self.trees.items():
             self.roots[key] = value.root
 
-    def read_block(self,block):
+    def read_block(self, block):
         context = []
-        previous_root_prob = []
-        root_prob = []
+        previous_root_prob = dict()
+        root_prob = dict()
 
-        for key, value in self.trees.items():
-            previous_root_prob.append(value.root.weighted_probability)
+        for x in range(1, self.max_depth):
+            previous_root_prob[str(x)] = self.tree.read_weighted_probability(x)
 
         for index, symbol in enumerate(block):
             if len(context) is not self.max_depth:
@@ -272,10 +309,10 @@ class Competition:
                 context.pop()
                 context.insert(0, symbol)
 
-        difference = list()
-        for key, value in self.trees.items():
-            root_prob.append(value.root.weighted_probability)
-            difference.append(value.root.weighted_probability - previous_root_prob[-key])
+        difference = dict()
+        for x in range(1, self.max_depth):
+            root_prob[str(x)] = self.tree.read_weighted_probability(x)
+            difference[str(x)] = root_prob[str(x)] - previous_root_prob[str(x)]
 
         # print( "\n",previous_root_prob, "\n")
         # print(root_prob, "\n")
@@ -283,34 +320,23 @@ class Competition:
         # print("MAX: ", max(difference))
         # print("MIN: ", min(difference))
 
-        return difference.index(max(difference)) + 1, max(difference)
+        return max(difference, key=difference.get), difference[max(difference, key=difference.get)]
 
-    def add_to_all(self,symbol,context_full):
-        #  check if the context is of enough depth.
-        #  Make sure to add it at lower depths
-
+    def add_to_all(self, symbol, context_full):
         #  sys.stdout.write("\rAdding symbol: %s With context: %s " % (symbol, context_full))
+        self.tree.add_data_point(symbol, context_full)
 
-        for key,value in self.trees.items():
-            context = context_full[:key]
-            # print("Depth: ", key,"context: ",context)
-            value.add_data_point(symbol,context)
-
-    def read_file(self,file_handle):
-        context = []
+    def read_file(self, file_handle):
         records = dict()
 
         for r in SeqIO.parse(file_handle, "gb"):
-            print(r.id)
-            print(len(r.seq))
             records[r.id] = r.seq
 
-        file_seq = None
-        for key,value in records.items():
-            sys.stdout.write("\rAdding record with ID: %s" % key)
-            file_seq = value
+        for key, value in records.items():
+            sys.stdout.write("\r Record ID: %s, length: %s" % (key, str(len(value))))
         print("\n")
 
+        file_seq = records["NW_004929429.1"]
         # TODO: Add a counter for the block size, so that it will send only the correct sized block
         # TODO: Add a list, of the/dic/something to keep track of best depth and its value
 
@@ -319,12 +345,12 @@ class Competition:
         symcounter = 0
 
         for index, symbol in enumerate(file_seq):
-            printProgressBar(index, 400000)
+            printProgressBar(symcounter, 40000)
 
             if symbol is "N":
                 continue
 
-            if symcounter > 400000:
+            if symcounter > 40000:
                 break
 
             block.append(symbol)
@@ -338,7 +364,7 @@ class Competition:
         print_to_file(blockseq)
 
 
-def print_to_file(output, file ="out.txt"):
+def print_to_file(output, file="out.txt"):
     with open(file, 'w') as f:
         out = ""
         for item in output:
@@ -362,7 +388,7 @@ def int_to_ACGT(int_list):
     return ACGT_list
 
 
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 3, length = 100, fill = '█'):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -382,7 +408,6 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     if iteration == total:
         print()
 
-
 def num_to_ACGT(x):
     if x == 1:
         return "A"
@@ -399,7 +424,9 @@ def print_trees(trees):
     print("\t Name:", "\t Depth", "\t\t| Root Prob.|\t\t Counts")
     print("\t ____________________________________________________")
     for key in trees:
-        print("\t", key, "\t \t", trees[key].depth, "\t\t", trees[key].root.weighted_probability,"\t\t",  trees[key].root.counts)
+        print("\t", key, "\t \t", trees[key].depth,
+              "\t\t", trees[key].root.weighted_probability,
+              "\t\t",  trees[key].root.counts)
 
 
 def inverted_complement(symbols):
@@ -425,24 +452,22 @@ def main():
 
     trees = dict()
     print("Testing competition: ")
-    test = Competition(10)
+    test = Competition(16)
 
     handle = gzip.open("hs_alt_CHM1_1.1_chr22.gbk.gz", "rt")
-    # test.read_file(handle)
+    test.read_file(handle)
+    # print_trees(test.trees)
 
-    print_trees(test.trees)
-
-    current_tree = None
+    current_tree = test.tree
 
     trees[test_tree.name] = test_tree
+    trees[test.tree.name] = test.tree
 
     # Table of commands
     print_commands()
 
     print_trees(trees)
 
-    #  for i in range(1, 1000):
-       #  sys.stdout.write("\rDoing thing %i" % i)
 
     while 1:
 
@@ -474,6 +499,12 @@ def main():
         else:
             print("\n Currently in tree: ", current_tree.name)
             command = input("\t Enter your command: ")
+
+            if command is "b":
+                depth = input("what max depth do you want to calculate for? \n")
+                if depth.isdigit():
+                    for x in range(1, int(depth) + 1):
+                        print(str(x) + ": ", current_tree.read_weighted_probability(int(x)))
 
             if command is "x" or command is "X":
                 current_tree = None

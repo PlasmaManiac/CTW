@@ -42,7 +42,7 @@ This function will update both the  `self.probability` and `self.weighted_probab
 Will print information about the node and its children. The `tab` input determines what symbol is used as indents between levels of the tree
 
 Example Print out:
-(with `tab` as a space character)
+(with `\t` as the space character)
 ```
 C Prob: -30.108163475962257
  A Prob: -9.281181752544054
