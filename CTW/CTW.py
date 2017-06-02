@@ -179,11 +179,11 @@ class Node:
         self.tree.fixed_depth_probabilities_alpha[self.level] -= self.estimated_probability_alpha
         # Base 2 log
         # CHANGED: self.tree.alpha -> 0.5
-        self.estimated_probability += math.log((self.counts[symbol] + 0.5)
+        self.estimated_probability += math.log((self.counts[symbol] - 1 + 0.5 )
                                                / (total_count + 4*0.5), 2)
 
-        self.estimated_probability_alpha += math.log((self.counts[symbol] + 0.01)
-                                               / (total_count + 4*0.01), 2)
+        self.estimated_probability_alpha += math.log((self.counts[symbol] - 1 + 0.05)
+                                               / (total_count + 4*0.05), 2)
 
         self.tree.fixed_depth_probabilities[self.level] += self.estimated_probability
         self.tree.fixed_depth_probabilities_alpha[self.level] += self.estimated_probability_alpha
@@ -202,7 +202,7 @@ class Node:
                     if child is not None:
                         child_weight += child.weighted_probabilities[key]
                 if key > 11:
-                    self.weighted_probabilities[key] = add_logs(child_weight, self.estimated_probability_alpha) + math.log(1 / 2, 2)
+                    self.weighted_probabilities[key] = add_logs(child_weight, self.estimated_probability_alpha) + math.log(1 / 2, 2)#_alpha
                 else:
                     self.weighted_probabilities[key] = add_logs(child_weight, self.estimated_probability) + math.log(1 / 2, 2)
 
@@ -517,7 +517,7 @@ class Competition:
         self.tree.add_data_point(symbol, context_full)
 
 
-    def read_file(self, file_handle):
+    def read_file(self, file_handle, max_symbols, output_fileName = ("CTW.txt", "Markov.txt")):
 
         records = dict()
 
@@ -535,7 +535,6 @@ class Competition:
         block = list()
         blockseq = list()
         symcounter = 0
-        max_symbols = 40000
 
         for index, symbol in enumerate(file_seq):
 
@@ -553,7 +552,7 @@ class Competition:
                     del block[:]
 
         print('\n',"Length of block sequence" , len(blockseq))
-        print_to_file(blockseq)
+        print_to_file(blockseq, output_fileName[0],output_fileName[1])
 
 
 class Codon:
@@ -629,13 +628,22 @@ def main():
 
     trees = dict()
     test = Competition(16)
-    codon_test = Codon(10)
+    comp_test_2 = Competition(16)
+    test_output = list()
 
     block = []
+    output = []
+    for x in range(0, 200):
+        for y in range(0,200):
+            block.append(random.randint(1, 4))
+        block = int_to_ACGT(block)
+        print(len(block))
+        output.append(test.read_block(block))
+    print_to_file(output, "update/ctw_random_block_-1_A.txt","update/fd_random_block_-1_A.txt")
 
+    #handle = gzip.open("hs_alt_CHM1_1.1_chr22.gbk.gz", "rt")
 
-    handle = gzip.open("hs_alt_CHM1_1.1_chr22.gbk.gz", "rt")
-    test.read_file(handle)
+    #test.read_file(handle, 40000, ("update/ctw_31_40000_1.txt","update/fd_31_40000_1.txt"))
 
 
     print_trees(test.trees)
@@ -655,9 +663,6 @@ def main():
 
     pr.disable()
     pr.dump_stats(filename)
-    stats = pstats.Stats(filename)
-    # stats.strip_dirs().sort_stats(-1).print_stats()
-    # stats.sort_stats('time').print_stats(10)
 
     while 1:
 
