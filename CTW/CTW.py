@@ -111,7 +111,6 @@ def inverted_complement(symbols):
     reverse.reverse()
     return reverse
 
-
 class Node:
     def __init__(self, sym, prnt, tree, lvl):
         # symbol sequence of that node
@@ -256,23 +255,78 @@ class Tree:
 
         self.depthTable = defaultdict(list)
         self.depthTable[0] = [self.root]
+
+        self.block_Pe = defaultdict(list)
+
         self.fixed_depth_probabilities = dict()
         self.fixed_depth_probabilities_alpha = dict()
+
         for x in range (0, depth + 1):
             self.fixed_depth_probabilities[x] = 0
             self.fixed_depth_probabilities_alpha[x] = 0
-
 
         if depth > 11:
             self.alpha = 0.05
         else:
             self.alpha = 0.5
 
+    def read_block(self, block):
+        context = []
+        previous_root_prob = dict()
+        previous_root_prob_markov = dict()
+
+        root_prob = dict()
+        markov_prob = dict()
+
+        for x in range(1, self.depth + 1):
+            #  previous_root_prob[x] = self.tree.read_weighted_probability(x)
+            previous_root_prob[x] = self.root.weighted_probabilities[x]
+            #previous_root_prob_markov[x] = self.tree.calculate_markov_prob(x)
+            previous_root_prob_markov[x] = self.fixed_depth_probabilities[x]
+
+            self.block_Pe[x].append((previous_root_prob[x],previous_root_prob_markov[x]))
+
+        for index, symbol in enumerate(block):
+            if len(context) is not self.depth:
+                #  Add to the context
+                context.insert(0, symbol)
+            else:
+                #  Add to the tree
+                #  print("context: ", context)
+                #  print("symbol: ", symbol)
+
+                # Add to all to trees
+                self.add_data_point(symbol, context)
+
+                context.pop()
+                context.insert(0, symbol)
+
+        difference = dict()
+        difference_markov = dict()
+        for x in range(1, self.depth + 1):
+            # root_prob[x] = self.tree.read_weighted_probability(x)
+            root_prob[x] = self.root.weighted_probabilities[x]
+            #markov_prob[x] = self.tree.calculate_markov_prob(x)
+            markov_prob[x] = self.fixed_depth_probabilities[x]
+
+            difference[x] = root_prob[x] - previous_root_prob[x]
+            difference_markov[x] = markov_prob[x] - previous_root_prob_markov[x]
+
+        # print( "\n",previous_root_prob, "\n")
+        # print(root_prob, "\n")
+        # print(difference, "\n")
+        # print("MAX: ", max(difference))
+        # print("MIN: ", min(difference))
+
+        return max(difference, key=difference.get), difference[max(difference, key=difference.get)], max(difference_markov, key=difference_markov.get), difference_markov[max(difference_markov, key=difference_markov.get)]
+
+
     def calculate_markov_prob(self, depth):
         probability_sum = 0
 
         for node in self.depthTable[int(depth)]:
             node_prob = 0
+
             if int(depth) > 11:
                 node_prob = node.estimated_probability_alpha
             else:
@@ -350,27 +404,79 @@ class Tree:
         dirty_nodes = self.traverse_context(new_symbol, reverse)
         self.reweight_tree(dirty_nodes, new_symbol)
 
-    def read_file(self, file):
+    def read_file(self):
+        filename = askopenfilename()
+        print(filename)
 
-        file_seq = file.seq
+        file_extension = filename.split(".")[-1]
+        iterator = None
 
-        print(file_seq)
+        records = dict()
+
+
+        if file_extension == "gz":
+            filename = gzip.open(filename, "rt")
+
+        for r in SeqIO.parse(filename, "gb"):
+            records[r.id] = r.seq
+
+        for key, value in records.items():
+            print("ID: ", key)
+
+        print("\n")
+        file = input("What record do you want to open?")
+        file_seq = records[file]
 
         context = []
+        print("Opened: " + file)
+        print("Length: " + str(len(file_seq)))
 
-        for index, symbol in enumerate(file_seq):
-            if len(context) is not self.depth:
-                #  Add to the context
-                context.insert(0, symbol)
-            else:
-                #  Add to the tree
-                # print("context: ", context)
-                # print("symbol: ", symbol)
+        read_type = input("How do you want to load the information: \n C : Competitively \n N : Normally \n")
 
-                self.add_data_point(symbol, context)
+        if read_type is "C":
+            block = list()
+            block_seq = list()
+            symbol_counter = 0
 
-                context.pop()
-                context.insert(0, symbol)
+            max_symbols = int(input("How many symbols do you want to load?"))
+
+            block_size = int(input("What block-size?"))
+
+            output_filename = file + "_MaxSym" + str(max_symbols) + "_depth_" + str(self.depth) + ".txt"
+
+            for index, symbol in enumerate(file_seq):
+
+                if symbol is not "N":
+
+                    if symbol_counter > max_symbols:
+                        break
+
+                    block.append(symbol)
+                    symbol_counter += 1
+
+                    if len(block) is block_size:
+                        printProgressBar(symbol_counter, max_symbols)
+                        block_seq.append(self.read_block(block))
+                        del block[:]
+
+            print('\n', "Length of block sequence", len(block_seq))
+
+            print_to_file(block_seq, "CTW_" + output_filename, "Fixed_Depth_" + output_filename)
+
+        elif read_type is "N":
+            for index, symbol in enumerate(file_seq):
+                if len(context) is not self.depth:
+                    #  Add to the context
+                    context.insert(0, symbol)
+                else:
+                    #  Add to the tree
+                    # print("context: ", context)
+                    # print("symbol: ", symbol)
+
+                    self.add_data_point(symbol, context)
+
+                    context.pop()
+                    context.insert(0, symbol)
 
     def reweight_tree(self, dirtynodes, symbol):
         self.root.counts[symbol] += 1
@@ -430,107 +536,69 @@ class Tree:
             print("Loading a file: ")
             # TODO: Add in a way to manage the records, so to load a specific record
 
-            filename = askopenfilename()
-            print(filename)
-
-            file_extension = filename.split(".")[-1]
-            iterator = None
-
-            if file_extension == "gbk":
-                iterator = SeqIO.parse(filename, "genbank")
-            elif file_extension == "gz":
-                handle = gzip.open(filename, "rt")
-                iterator = SeqIO.parse(handle, "genbank")
-
-            record = next(iterator)
-            print(record.seq)
-
-            self.read_file(record)
-
-            iterator.close()
+            self.read_file()
 
         elif command == "c" or command == "C":
             print_tree_commands()
 
+        if command is "b":
+            depth = input("what max depth do you want to calculate for? \n")
+            if depth.isdigit():
+                for x in range(0, int(depth) + 1):
+                    print(str(x) + ": ", self.read_weighted_probability(int(x)))
+        if command is "t":
+            depth = input("what depth do you want to access? \n")
+            if depth.isdigit():
+                print(self.depthTable[int(depth)])
 
+        if command is "m":
+            depth = input("what depth do you want to calculate for? \n")
+            if depth.isdigit():
+                print(self.calculate_markov_prob(depth))
+
+        if command is "e":
+            for key, value in self.block_Pe.items():
+                print_to_file(value, "outputs/ " + str(key) + "Pw and Markov.mat")
+
+        if command is "q":
+            print("Weighted Probabilities  stored in root: (a = 0.5)")
+            for key, value in self.root.weighted_probabilities.items():
+                print("\t", key, ": ", value)
+
+        if command is "z":
+            print("Fixed Depth Probabilities stored in Tree: Alpha = 0.5")
+            for key, value in self.fixed_depth_probabilities.items():
+                print("\t", key, ": ", value)
+
+            print("Fixed Depth Probabilities stored in Tree: Alpha = 0.05")
+            for key, value in self.fixed_depth_probabilities_alpha.items():
+                print("\t", key, ": ", value)
+
+
+# Kept just in case, bust should mostly be unused
 class Competition:
     def __init__(self, max_depth, blocksize=200):
         self.max_depth = max_depth
-        self.trees = dict()
+
         self.tree = Tree("MD:" + str(max_depth), max_depth)
         self.blocksize = blocksize
         #  Keeps track of the Pw and Pm of when each block was added
-        self.block_Pe = defaultdict(list)
-
-    def read_block(self, block):
-        context = []
-        previous_root_prob = dict()
-        previous_root_prob_markov = dict()
-
-        root_prob = dict()
-        markov_prob = dict()
-
-        for x in range(1, self.max_depth + 1):
-            #  previous_root_prob[x] = self.tree.read_weighted_probability(x)
-            previous_root_prob[x] = self.tree.root.weighted_probabilities[x]
-            #previous_root_prob_markov[x] = self.tree.calculate_markov_prob(x)
-            previous_root_prob_markov[x] = self.tree.fixed_depth_probabilities[x]
-
-            self.block_Pe[x].append((previous_root_prob[x],previous_root_prob_markov[x]))
-
-        for index, symbol in enumerate(block):
-            if len(context) is not self.max_depth:
-                #  Add to the context
-                context.insert(0, symbol)
-            else:
-                #  Add to the tree
-                #  print("context: ", context)
-                #  print("symbol: ", symbol)
-
-                # Add to all to trees
-                self.add_to_all(symbol, context)
-
-                context.pop()
-                context.insert(0, symbol)
-
-        difference = dict()
-        difference_markov = dict()
-        for x in range(1, self.max_depth + 1):
-            # root_prob[x] = self.tree.read_weighted_probability(x)
-            root_prob[x] = self.tree.root.weighted_probabilities[x]
-            #markov_prob[x] = self.tree.calculate_markov_prob(x)
-            markov_prob[x] = self.tree.fixed_depth_probabilities[x]
-
-            difference[x] = root_prob[x] - previous_root_prob[x]
-            difference_markov[x] = markov_prob[x] - previous_root_prob_markov[x]
-
-        # print( "\n",previous_root_prob, "\n")
-        # print(root_prob, "\n")
-        # print(difference, "\n")
-        # print("MAX: ", max(difference))
-        # print("MIN: ", min(difference))
-
-        return max(difference, key=difference.get), difference[max(difference, key=difference.get)], max(difference_markov, key=difference_markov.get), difference_markov[max(difference_markov, key=difference_markov.get)]
 
     def add_to_all(self, symbol, context_full):
         #  sys.stdout.write("\rAdding symbol: %s With context: %s " % (symbol, context_full))
         self.tree.add_data_point(symbol, context_full)
 
-
-    def read_file(self, file_handle, max_symbols, output_fileName = ("CTW.txt", "Markov.txt")):
-
+    def read_file(self, file_handle, max_symbols, output_filename=("CTW.txt", "Markov.txt")):
         records = dict()
 
         for r in SeqIO.parse(file_handle, "gb"):
             records[r.id] = r.seq
 
         for key, value in records.items():
-            print("ID: ",key)
+            print("ID: ", key)
         print("\n")
         file = input("What record do you want to open?")
         file_seq = records[file]
-        #  Just a randomly chosen one
-        #file_seq = records["NW_004929430.1"]
 
         block = list()
         blockseq = list()
@@ -551,12 +619,12 @@ class Competition:
                     blockseq.append(self.read_block(block))
                     del block[:]
 
-        print('\n',"Length of block sequence" , len(blockseq))
-        print_to_file(blockseq, output_fileName[0],output_fileName[1])
+        print('\n', "Length of block sequence", len(blockseq))
+        print_to_file(blockseq, output_filename[0], output_filename[1])
 
 
 class Codon:
-    def __init__(self, max_depth, type = "normal"):
+    def __init__(self, max_depth, type="normal"):
 
         # TODO: Make this change based on compettive or not
         if type is "competitive":
@@ -627,34 +695,34 @@ def main():
     test_tree2 = Tree("Test16", 16)
 
     trees = dict()
-    test = Competition(16)
-    comp_test_2 = Competition(16)
-    test_output = list()
+    #test = Competition(16)
+    #comp_test_2 = Competition(16)
+    #test_output = list()
 
-    block = []
-    output = []
-    for x in range(0, 200):
-        for y in range(0,200):
-            block.append(random.randint(1, 4))
-        block = int_to_ACGT(block)
-        print(len(block))
-        output.append(test.read_block(block))
-    print_to_file(output, "update/ctw_random_block_-1_A.txt","update/fd_random_block_-1_A.txt")
+    #block = []
+    #output = []
+    #for x in range(0, 200):
+    #    for y in range(0,200):
+    #        block.append(random.randint(1, 4))
+    #    block = int_to_ACGT(block)
+    #    print(len(block))
+    #    output.append(test.read_block(block))
+    #print_to_file(output, "update/ctw_random_block_-1_A.txt","update/fd_random_block_-1_A.txt")
 
     #handle = gzip.open("hs_alt_CHM1_1.1_chr22.gbk.gz", "rt")
 
     #test.read_file(handle, 40000, ("update/ctw_31_40000_1.txt","update/fd_31_40000_1.txt"))
 
 
-    print_trees(test.trees)
-    current_tree = test.tree
+    #print_trees(test.trees)
+    #current_tree = test.tree
 
     trees[test_tree.name] = test_tree
-    trees[test.tree.name] = test.tree
+    #trees[test.tree.name] = test.tree
     trees[test_tree2.name] = test_tree2
 
     # current_tree = current_tree.best_tree()
-    current_tree = test.tree
+    current_tree = test_tree
 
     # Table of commands
     print_commands()
@@ -694,39 +762,6 @@ def main():
         else:
             print("\n Currently in tree: ", current_tree.name)
             command = input("\t Enter your command: ")
-
-            if command is "b":
-                depth = input("what max depth do you want to calculate for? \n")
-                if depth.isdigit():
-                    for x in range(0, int(depth) + 1):
-                        print(str(x) + ": ", current_tree.read_weighted_probability(int(x)))
-            if command is "t":
-                depth = input("what depth do you want to access? \n")
-                if depth.isdigit():
-                    print(current_tree.depthTable[int(depth)])
-
-            if command is "m":
-                depth = input("what depth do you want to calculate for? \n")
-                if depth.isdigit():
-                    print(current_tree.calculate_markov_prob(depth))
-
-            if command is "e":
-                for key, value in test.block_Pe.items():
-                    print_to_file(value, "outputs/ " + str(key) + "Pw and Markov.mat")
-
-            if command is "q":
-                print("Weighted Probabilities  stored in root: (a = 0.5)")
-                for key, value in current_tree.root.weighted_probabilities.items():
-                    print("\t", key, ": ", value)
-
-            if command is "z":
-                print("Fixed Depth Probabilities stored in Tree: Alpha = 0.5")
-                for key, value in current_tree.fixed_depth_probabilities.items():
-                    print("\t", key, ": ", value)
-
-                print("Fixed Depth Probabilities stored in Tree: Alpha = 0.05")
-                for key, value in current_tree.fixed_depth_probabilities_alpha.items():
-                    print("\t", key, ": ", value)
 
             if command is "x" or command is "X":
                 current_tree = None
