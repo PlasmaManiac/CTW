@@ -2,6 +2,65 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1b5fecca-3824-4a2e-9db7-ece207af1004" name="Default" comment="Added some extra functionaltily for managment of the trees">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/CTW_NW_004929431.1_40000_16.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/CTW_Z78463.1_700_5.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/CTW_Z78527.1_700_5.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/DNA_sequences/hs_alt_CHM1_1.1_chr22.gbk.gz" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/CTW - NW_004929429.1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/CTW- NW_004929430.1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/10Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/11Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/12Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/13Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/14Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/15Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/16Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/1Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/2Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/3Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/4Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/5Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/6Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/7Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/8Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/all trees - NW_004929430.1/9Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/markov - NW_004929429.1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Data/markov - NW_004929430.1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Fixed_Depth_NW_004929431.1_40000_16.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/Fixed_Depth_Z78527.1_700_5.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/README.md" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/example_seq.gz" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/graph.m" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/hs_alt_CHM1_1.1_chr22.gbk.gz" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/ls_orchid.gbk" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/outputs/ 5Pw and Markov.mat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/plot_2graphs.m" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/plot_graphs.m" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/randomBlocks_FD_noAlpha.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/31 with alpha and -1 CWL .jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/31 with alpha and -1.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/31 without alpha and -1 .jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/31 without alpha and -1 CWL .jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/31_No -1 CWL.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/31_No -1.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/ctw_31_40000_1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/ctw_31_40000_A.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/ctw_31_40000_A1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/ctw_random_block_-1_A.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/ctw_random_block_-1_noA.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/fd_31_40000_1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/fd_31_40000_A.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/fd_31_40000_A1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/fd_random_block_-1_A.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/fd_random_block_-1_noA.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/random_ctw_1.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/random_ctw_1A.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/random_ctw_1A_CWL.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/random_ctw_1_CWL.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/random_fd_1.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/random_fd_1A.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/random_fd_1A_CWL.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CTW/update/random_fd_1_CWL.jpg" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/tree.profile" afterPath="$PROJECT_DIR$/CTW/tree.profile" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/CTW.py" afterPath="$PROJECT_DIR$/CTW/CTW.py" />
@@ -17,22 +76,19 @@
     <option name="PATCH_PATH" value="" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="CTW" />
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
       <file leaf-file-name="CTW.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="370">
-              <caret line="624" column="0" lean-forward="true" selection-start-line="624" selection-start-column="0" selection-end-line="624" selection-end-column="0" />
+            <state relative-caret-position="6115">
+              <caret line="562" column="37" lean-forward="true" selection-start-line="562" selection-start-column="37" selection-end-line="562" selection-end-column="37" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <element signature="e#456#644#0" expanded="false" />
-                <element signature="e#677#919#0" expanded="false" />
-                <element signature="e#953#1328#0" expanded="false" />
-                <element signature="e#2328#2465#0" expanded="false" />
-                <element signature="e#2496#2851#0" expanded="false" />
-                <element signature="e#2892#3218#0" expanded="false" />
-                <element signature="e#20107#21581#0" expanded="false" />
+                <element signature="e#25778#27555#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -49,36 +105,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>ran</find>
-      <find>write</find>
-      <find>print_to_file</find>
-      <find>update_pro</find>
-      <find>read_</find>
-      <find>main</find>
-      <find>update_</find>
-      <find>update_prob</find>
-      <find>read_block</find>
-      <find>_alpha</find>
-      <find>0.05</find>
-      <find>random</find>
-      <find>file</find>
-      <find>class tre</find>
-      <find>output_Filename</find>
-      <find>def read</find>
-      <find>e</find>
-      <find>self.block_Pe = defaultdict(list)</find>
-      <find>blocksize</find>
-      <find>tree</find>
+      <find>print_</find>
+      <find>weighted_probabilities</find>
+      <find>self.alpha</find>
       <find>class</find>
-      <find>def read_block</find>
-      <find>l</find>
-      <find>read_file</find>
-      <find>output_filename</find>
-      <find>prin</find>
-      <find>pr</find>
-      <find>print_commands</find>
-      <find>command</find>
+      <find>create</find>
+      <find>main</find>
+      <find>alpha</find>
+      <find>estimated_probability_alpha</find>
+      <find>block</find>
+      <find>return</find>
+      <find>competitive</find>
+      <find>max</find>
+      <find>file</find>
+      <find>min</find>
+      <find>minmax</find>
+      <find>self.symbol</find>
+      <find>children_prob</find>
+      <find>depthTable</find>
+      <find>previous_root_prob_markov</find>
+      <find>markov</find>
+      <find>fixed_depth</find>
+      <find>calculate_Fixed_Depth_prob</find>
+      <find>read_weighted_probability</find>
+      <find>commadn</find>
       <find>commands</find>
+      <find>full_path</find>
+      <find>trave</find>
+      <find>load_seq</find>
+      <find>def read</find>
+      <find>load_</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -144,8 +200,8 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -347,25 +403,25 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1050" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.06458333" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3296875" sideWeight="0.4961665" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37239867" sideWeight="0.209375" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32968238" sideWeight="0.221875" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32968238" sideWeight="0.49791667" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38882804" sideWeight="0.76875" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37239867" sideWeight="0.790625" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.06458333" sideWeight="0.50383353" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33406353" sideWeight="0.7125" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37239867" sideWeight="0.778125" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -377,6 +433,9 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints-dialog>
+        <breakpoints-dialog />
+      </breakpoints-dialog>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -384,7 +443,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="68" />
+      <option name="time" value="97" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
@@ -399,13 +458,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#456#644#0" expanded="false" />
-            <element signature="e#677#919#0" expanded="false" />
-            <element signature="e#953#1328#0" expanded="false" />
-            <element signature="e#2328#2465#0" expanded="false" />
-            <element signature="e#2496#2851#0" expanded="false" />
-            <element signature="e#2892#3218#0" expanded="false" />
-            <element signature="e#20107#21581#0" expanded="false" />
+            <element signature="e#25778#27555#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -416,13 +469,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#456#644#0" expanded="false" />
-            <element signature="e#677#919#0" expanded="false" />
-            <element signature="e#953#1328#0" expanded="false" />
-            <element signature="e#2328#2465#0" expanded="false" />
-            <element signature="e#2496#2851#0" expanded="false" />
-            <element signature="e#2892#3218#0" expanded="false" />
-            <element signature="e#20107#21581#0" expanded="false" />
+            <element signature="e#25778#27555#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -433,13 +480,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#456#644#0" expanded="false" />
-            <element signature="e#677#919#0" expanded="false" />
-            <element signature="e#953#1328#0" expanded="false" />
-            <element signature="e#2328#2465#0" expanded="false" />
-            <element signature="e#2496#2851#0" expanded="false" />
-            <element signature="e#2892#3218#0" expanded="false" />
-            <element signature="e#20107#21581#0" expanded="false" />
+            <element signature="e#25778#27555#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -450,13 +491,80 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#456#644#0" expanded="false" />
-            <element signature="e#677#919#0" expanded="false" />
-            <element signature="e#953#1328#0" expanded="false" />
-            <element signature="e#2328#2465#0" expanded="false" />
-            <element signature="e#2496#2851#0" expanded="false" />
-            <element signature="e#2892#3218#0" expanded="false" />
-            <element signature="e#20107#21581#0" expanded="false" />
+            <element signature="e#25778#27555#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#25778#27555#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/site-packages/Bio/File.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1738">
+          <caret line="87" column="0" lean-forward="false" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#25778#27555#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#25778#27555#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#25778#27555#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#25778#27555#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#25778#27555#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -536,19 +644,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/site-packages/Bio/File.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1738">
+          <caret line="87" column="0" lean-forward="false" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="370">
-          <caret line="624" column="0" lean-forward="true" selection-start-line="624" selection-start-column="0" selection-end-line="624" selection-end-column="0" />
+        <state relative-caret-position="6115">
+          <caret line="562" column="37" lean-forward="true" selection-start-line="562" selection-start-column="37" selection-end-line="562" selection-end-column="37" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#456#644#0" expanded="false" />
-            <element signature="e#677#919#0" expanded="false" />
-            <element signature="e#953#1328#0" expanded="false" />
-            <element signature="e#2328#2465#0" expanded="false" />
-            <element signature="e#2496#2851#0" expanded="false" />
-            <element signature="e#2892#3218#0" expanded="false" />
-            <element signature="e#20107#21581#0" expanded="false" />
+            <element signature="e#25778#27555#0" expanded="false" />
           </folding>
         </state>
       </provider>

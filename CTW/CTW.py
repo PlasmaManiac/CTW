@@ -9,7 +9,11 @@ from tkinter.filedialog import askopenfilename
 from Bio import SeqIO
 from collections import defaultdict
 
+
 def print_tree_commands():
+    """
+    Helper Function - Prints the options available when within a tree
+    """
     print("Commands:")
     print("a - Add a node")
     print("r - Add random node")
@@ -20,6 +24,10 @@ def print_tree_commands():
 
 
 def print_commands():
+    """
+    Helper function - Prints the options when not-in a tree
+    :return:
+    """
     print("Commands:")
     print("a - Add a new tree")
     print("o - Open an existing tree")
@@ -30,16 +38,27 @@ def print_commands():
 
 def add_logs(log1, log2):
     """
+    Help function - Adds two log values under the assumption that log1 >= log2
     :param log1: Log1 is larger than log2
     :param log2: Second log value
-    :return: will return the addition of the two logs whilst only in the log domain
+    :return: will return the addition of the two logs
     """
-    ans = log1 + math.log(1 + pow(2, (log2 - log1)), 2)
-    return ans
+    return log1 + math.log(1 + pow(2, (log2 - log1)), 2)
+
 
 
 def int_to_ACGT(int_list):
-    """Helper Function - Allows for the randomly generated sequence to be converted into chars"""
+    """
+    Helper Function - Allows for the randomly generated sequence to be converted into chars
+    converts as follows:
+        1 - A
+        2 - C
+        3 - G
+        4 - T
+
+    :param int_list: A list of ints of either 1,2,3 or 4
+    :return will return a list of a A,C,G or T characters converted from int_list
+    """
     ACGT_list = []
     for x in int_list:
         if x == 1:
@@ -53,6 +72,20 @@ def int_to_ACGT(int_list):
 
     return ACGT_list
 
+def num_to_ACGT(x):
+    """
+    Convert a single value to ACGT
+    :param x: an int of 1,2,3 or 4
+    :return: A char
+    """
+    if x == 1:
+        return "A"
+    elif x == 2:
+        return "C"
+    elif x == 3:
+        return "G"
+    elif x == 4:
+        return "T"
 
 def printProgressBar(iteration, total, prefix = '', suffix = '', decimals = 3, length = 100, fill = '█'):
     """
@@ -74,30 +107,40 @@ def printProgressBar(iteration, total, prefix = '', suffix = '', decimals = 3, l
     if iteration == total:
         print()
 
-def num_to_ACGT(x):
-    if x == 1:
-        return "A"
-    elif x == 2:
-        return "C"
-    elif x == 3:
-        return "G"
-    elif x == 4:
-        return "T"
 
 
 def print_trees(trees):
+    """
+    Provides a print out of relevent information
+    :param trees: A list of trees
+    """
     print("\n Listing all current trees: ")
     print("\t Name:", "\t Depth", "\t\t| Root Prob.|\t\t Counts")
     print("\t ____________________________________________________")
-    for key in trees:
-        print("\t", key, "\t \t", trees[key].depth,
-              "\t\t", trees[key].root.weighted_probability,
-              "\t\t",  trees[key].root.counts)
+    for key, value1 in trees.items():
+        if isinstance(value1, Codon):
+            print("\t",key, ":")
+            for tree,value2 in value1.trees.items():
+                print("\t\t",key, tree, "\t \t", value2.depth,
+                      "\t\t", value2.root.weighted_probability,
+                      "\t\t", value2.root.counts)
+        else:
+            print("\t", key, "\t \t", trees[key].depth,
+            "\t\t", trees[key].root.weighted_probability,
+            "\t\t",  trees[key].root.counts)
 
 
 def inverted_complement(symbols):
+    """
+    This function will take a set of symbols, and return the inverted reverse of them
+
+    :param symbols: A set of symbols that will be converted into their
+    :return: The reversed and inverted sequence
+    """
+    #  Initialize an empty list
     reverse = [None] * len(symbols)
 
+    #  for all the elements in symbols, convert and insert into reverse
     for i, sym in enumerate(symbols):
         if sym == "A":
             reverse[i] = "T"
@@ -108,12 +151,17 @@ def inverted_complement(symbols):
         elif sym == "C":
             reverse[i] = "G"
 
+    #  reverse the list
     reverse.reverse()
+    #  return the list
     return reverse
+
 
 class Node:
     def __init__(self, sym, prnt, tree, lvl):
-        # symbol sequence of that node
+        # symbol used to access that node from parent
+        # So the A-child of a node, A is stored here
+        # Solely used for printing the tree
         self.symbol = sym
 
         # the tree in which this Node exists
@@ -125,117 +173,137 @@ class Node:
         # eg: A => The A branch from current node
         self.children = {"A": None, "C": None, "G": None, "T": None}
 
-        # Counts
+        # Counts of each symbol seen by that node
         self.counts = {"A": 0, "C": 0, "G": 0, "T": 0}
 
         # Estimated probability given the KT Estimator
+        # with an alpha of 0.5
         self.estimated_probability = 0
 
         # Estimated probability given the KT Estimator
         # With an alpha of 0.05
         self.estimated_probability_alpha = 0
 
-        # Used to store the weighted probability of the node
+        # The weighted probability of the node
         self.weighted_probability = 0
 
         # The level of the node in the tree
         # level = 0 is the root
         self.level = lvl
 
+        # A dictionary containing all the possible weighted probabilities that could use this node
+        # Eg: a Node at level 2 of a tree with depth 4, can be part of a weighted probabilty of depth 2,3 or 4.
+        # So it has entries for 2 3 and 4
         self.weighted_probabilities = dict()
+
+        # Adds the correct keys to dictionary for later access
+        # Initialize the weighted_probabilities to 0
 
         for x in range(self.level, self.tree.depth + 1):
             self.weighted_probabilities[x] = 0
 
-    def get_weighted_prob(self, depth, maxdepth):
-
-        if depth is 0:
-            if maxdepth > 11:
-                return self.estimated_probability_alpha
-            else:
-                return self.estimated_probability
-        else:
-            children_prob = 0
-            for key, child in self.children.items():
-                if child is not None:
-                    children_prob += child.get_weighted_prob(depth - 1, maxdepth)
-
-        if maxdepth < 12:
-            return children_prob + math.log(1 + pow(2, (self.estimated_probability - children_prob)), 2) + math.log(1/2, 2)
-        else:
-            return children_prob + math.log(1 + pow(2, (self.estimated_probability_alpha - children_prob)), 2) + math.log(1/2, 2)
-
 
     def update_probability_log(self, symbol):
-        """When called will calculate the probability of the node"""
+        """
+        Given a symbol, update the probability stored in the node
+        :param symbol: A char of the symbol that has just been added to the tree
+        :return:
+        """
 
+        # Initialize a value to store the counts of all symbols stored
         total_count = 0
 
+        # For each count value, add it to the total_count
         for key, count in self.counts.items():
             total_count += count
 
+        # By removing the estimated probability from the current summation
+        # It is possible to then change it, and re-add it to the probability
         self.tree.fixed_depth_probabilities[self.level] -= self.estimated_probability
         self.tree.fixed_depth_probabilities_alpha[self.level] -= self.estimated_probability_alpha
-        # Base 2 log
-        # CHANGED: self.tree.alpha -> 0.5
-        self.estimated_probability += math.log((self.counts[symbol] - 1 + 0.5 )
+
+        # Calculation of the estimated probability with alpha = 0.5
+        self.estimated_probability += math.log((self.counts[symbol] - 1 + 0.5)
                                                / (total_count + 4*0.5), 2)
 
+        # Calculation of the estimated probability with alpha = 0.05
         self.estimated_probability_alpha += math.log((self.counts[symbol] - 1 + 0.05)
                                                / (total_count + 4*0.05), 2)
 
+        # Re-adding to the fixed depth proabilities to account for the change
         self.tree.fixed_depth_probabilities[self.level] += self.estimated_probability
         self.tree.fixed_depth_probabilities_alpha[self.level] += self.estimated_probability_alpha
 
+        # stores the probability of the children to this node
         children_prob = 0
 
+        # Begin by going through all of the weighted probabilities
         for key,value in self.weighted_probabilities.items():
+            # If the level of the weighted probability of is the same as the level of the node:
+            # only return the estimated value, which is dependent on the level
             if key is self.level:
+                # If the level is greater than 11
                 if key > 11:
-                    self.weighted_probabilities[key] = self.estimated_probability_alpha
+                    # If the tree is supposed to use the 0.05 alpha value
+                    # then store the 0.05 value
+                    if self.tree.alpha:
+                        self.weighted_probabilities[key] = self.estimated_probability_alpha
+                    else:
+                        self.weighted_probabilities[key] = self.estimated_probability
                 else:
+                    # below 12, nominal estimated probability
                     self.weighted_probabilities[key] = self.estimated_probability
             else:
+                # Stores the weighted probability of the children such that it can be used
+                # to update the weighted probability at this node
                 child_weight = 0
+
+                # Begins by looping through all the children of this node
                 for child_key, child in self.children.items():
+                    # Check to see if the child exists
                     if child is not None:
+                        # If it exist, add to child_weight
                         child_weight += child.weighted_probabilities[key]
                 if key > 11:
-                    self.weighted_probabilities[key] = add_logs(child_weight, self.estimated_probability_alpha) + math.log(1 / 2, 2)#_alpha
+                    # check to see if it is needed to use the 0.05 alpha value
+                    if self.tree.alpha:
+                        self.weighted_probabilities[key] = add_logs(child_weight, self.estimated_probability_alpha) + math.log(1 / 2, 2)
+                    else:
+                        self.weighted_probabilities[key] = add_logs(child_weight, self.estimated_probability) + math.log(1 / 2, 2)
                 else:
+                    # NOTE: the math.log(1/2,2) is equivalent to dividing the resulting sum by 2
+                    #       since pw = (pe + pw_children)/2 the division by 2 is necessary
                     self.weighted_probabilities[key] = add_logs(child_weight, self.estimated_probability) + math.log(1 / 2, 2)
 
+        # This portion of code is used to update the singular
+        # weighted probability, this was used before an update was made to consider
+        # weighted probabilities of different levels
 
+        # First check to see if the depth is equal to level
+        # Will affect the value used in the weighted prob.
         if self.level is not self.tree.depth:
+            # Loop through all the children
             for key, child in self.children.items():
+                # if the child exists..
                 if child is not None:
+                    # add to child prob
                     children_prob += child.weighted_probability
+            # Once all children have been added
             # log(1/2,2) is equivalent to multiplying it all 1/2
             self.weighted_probability = (
                 children_prob
                 + math.log(1 + pow(2, (self.estimated_probability - children_prob)), 2)
                 + math.log(1 / 2, 2))
         else:
-            self.weighted_probability = self.estimated_probability
-
-    def update_probability(self, symbol):
-
-        total_count = 0
-        for key, count in self.counts.items():
-            total_count += count
-
-        self.estimated_probability *= (self.counts[symbol] + 0.5) / (total_count + 2)
-
-        children_prob = 1
-        if self.level is not self.tree.depth:
-            for key, child in self.children.items():
-                if child is not None:
-                    children_prob *= child.probability
-            self.weighted_probability = (self.estimated_probability + children_prob) / 2
-        else:
+            # If at the max-depth only use the estimated prob.
             self.weighted_probability = self.estimated_probability
 
     def print(self, tab):
+        """
+        Will printout the tree in it current state.
+        :param tab: The character used as the space to show depth
+        :return:
+        """
         # Todo: Print self, based on the depth of the node and  children
         print(tab * (self.level - 1), self.symbol, "Prob: " + str(self.estimated_probability))
 
@@ -246,18 +314,28 @@ class Node:
 
 
 class Tree:
-    def __init__(self, name, depth, best=False):
+    def __init__(self, name, depth, alpha = False):
+        # The name of tree, used to identify it
         self.name = name
+        # The maximum depth of the tree
         self.depth = depth
-        self.best = best
+        # A boolean as to whether or not to use the
+        # 0.05 alpha value for depths >11
+        self.alpha = alpha
 
+        # Create the root node of the tree
+        # has special symbol: root
         self.root = Node("root", None, self, 0)
 
+        # Table that holds all the nodes per depth
+        # Is a dictionary of lists
         self.depthTable = defaultdict(list)
         self.depthTable[0] = [self.root]
 
+        # This is used to store the changes in Pe as blocks are loaded in
         self.block_Pe = defaultdict(list)
 
+        # A dictionary to store the fixed depth probilities
         self.fixed_depth_probabilities = dict()
         self.fixed_depth_probabilities_alpha = dict()
 
@@ -265,80 +343,82 @@ class Tree:
             self.fixed_depth_probabilities[x] = 0
             self.fixed_depth_probabilities_alpha[x] = 0
 
-        if depth > 11:
-            self.alpha = 0.05
-        else:
-            self.alpha = 0.5
-
-    def read_block(self, block):
+    def read_block(self, block, inverted, competitive):
+        """
+        Takes a block of symbols, generate symbol/context pairs and adds to the context
+        :param block: a set of symbols that will be loaded into the tree
+        :param inverted: A character that indicates whether or not to also add the inverted complement
+        :param competitive: A boolean that indicates whether or not the depths be considered competitively
+        :return: 4 values:
+                    1 - Depth of max difference of the CTW
+                    2 - The value of that difference (CTW)
+                    3 - Depth of max difference of the fixed depth
+                    4 - The value of the difference (fixed depth)
+        """
+        # Initialize a list used for the context
         context = []
+        # A dictionary used to store the previous root values
         previous_root_prob = dict()
-        previous_root_prob_markov = dict()
+        # A dictionary that stores the previous fixed depth prob
+        previous_root_prob_Fixed_Depth = dict()
 
+        # These two dicts will stores the value after the change
         root_prob = dict()
-        markov_prob = dict()
+        Fixed_Depth_prob = dict()
 
+        # start by going through all the depths
         for x in range(1, self.depth + 1):
-            #  previous_root_prob[x] = self.tree.read_weighted_probability(x)
+            # Store the previous probabilities
             previous_root_prob[x] = self.root.weighted_probabilities[x]
-            #previous_root_prob_markov[x] = self.tree.calculate_markov_prob(x)
-            previous_root_prob_markov[x] = self.fixed_depth_probabilities[x]
+            previous_root_prob_Fixed_Depth[x] = self.fixed_depth_probabilities[x]
 
-            self.block_Pe[x].append((previous_root_prob[x],previous_root_prob_markov[x]))
+            # stores the probabilities such that they can be accessed later
+            self.block_Pe[x].append((previous_root_prob[x],previous_root_prob_Fixed_Depth[x]))
 
+        # Now begin to loop through the block
         for index, symbol in enumerate(block):
+            # If there is not enough symbols to go to full depth:
             if len(context) is not self.depth:
                 #  Add to the context
                 context.insert(0, symbol)
             else:
                 #  Add to the tree
-                #  print("context: ", context)
-                #  print("symbol: ", symbol)
+                self.add_data_point(symbol, context, inverted)
 
-                # Add to all to trees
-                self.add_data_point(symbol, context)
-
+                # Remove a symbol, the last one added
                 context.pop()
+                # Insert a new one at the back (ie: the most recent one)
                 context.insert(0, symbol)
 
+        # Initialize dicts that stores the differences
         difference = dict()
-        difference_markov = dict()
+        difference_Fixed_Depth = dict()
+
+        # Loop over all the depths
         for x in range(1, self.depth + 1):
-            # root_prob[x] = self.tree.read_weighted_probability(x)
+            # Store the updated probabilities
             root_prob[x] = self.root.weighted_probabilities[x]
-            #markov_prob[x] = self.tree.calculate_markov_prob(x)
-            markov_prob[x] = self.fixed_depth_probabilities[x]
+            Fixed_Depth_prob[x] = self.fixed_depth_probabilities[x]
 
+            # Calculate the differences
             difference[x] = root_prob[x] - previous_root_prob[x]
-            difference_markov[x] = markov_prob[x] - previous_root_prob_markov[x]
+            difference_Fixed_Depth[x] = Fixed_Depth_prob[x] - previous_root_prob_Fixed_Depth[x]
 
-        # print( "\n",previous_root_prob, "\n")
-        # print(root_prob, "\n")
-        # print(difference, "\n")
-        # print("MAX: ", max(difference))
-        # print("MIN: ", min(difference))
+        # If the output should be competitively chosen
+        if competitive:
 
-        return max(difference, key=difference.get), difference[max(difference, key=difference.get)], max(difference_markov, key=difference_markov.get), difference_markov[max(difference_markov, key=difference_markov.get)]
-
-
-    def calculate_markov_prob(self, depth):
-        probability_sum = 0
-
-        for node in self.depthTable[int(depth)]:
-            node_prob = 0
-
-            if int(depth) > 11:
-                node_prob = node.estimated_probability_alpha
-            else:
-                node_prob = node.estimated_probability
-
-            if probability_sum is 0:
-                probability_sum = node_prob
-            else:
-                # probability_sum = add_logs(probability_sum, node_prob)
-                probability_sum += node_prob
-
-        return probability_sum
+            # Return the values with the max differnce between before and after
+            # MAX because the probability is in the log domain
+            return max(difference, key=difference.get), \
+                   difference[max(difference, key=difference.get)],\
+                   max(difference_Fixed_Depth, key=difference_Fixed_Depth.get),\
+                   difference_Fixed_Depth[max(difference_Fixed_Depth, key=difference_Fixed_Depth.get)]
+        else:
+            # Otherwise return the value at the max depth
+            return self.depth, \
+                   difference[self.depth], \
+                   max(difference_Fixed_Depth, key=difference_Fixed_Depth.get), \
+                   difference_Fixed_Depth[max(difference_Fixed_Depth, key=difference_Fixed_Depth.get)]
 
     def best_tree(self):
 
@@ -356,159 +436,225 @@ class Tree:
                     print("SADKALSJD")
         return best_tree
 
-    def read_weighted_probability(self, depth):
+    def add_data_point(self, symbol, context, inverted):
         """
-        Will calculate and return the weighted probability of a CTW with given depth
-        :param depth: The depth of the tree you want to read
-        :return: A probability in log base 2 of the CTW of given depth
+        Will take a symbol and context and add them to the tree
+        also takes a char that determines if it should add the inverted complement
+        :param symbol: The symbol to be added
+        :param context: The context to that symbol
+        :param inverted: A char or either N or Y that determines if the inverted
+                        complement should also be added
         """
-
-        # TODO: Add in a conisderation for how the depth may affect ALPHA IE: Depths > 11 -> alpha = 0.05 DONE
-
-        if depth > self.depth:
-            return None
-        if depth < 0:
-            return None
-
-        children_prob = 0
-
-        for key, child in self.root.children.items():
-            if child is not None:
-                children_prob += child.get_weighted_prob(depth - 1, depth)
-
-        if depth < 11 and depth is not 0:
-            return children_prob + math.log(1 + pow(2, (self.root.estimated_probability - children_prob)), 2) \
-                   + math.log(1 / 2, 2)
-        elif depth is 0:
-            return self.root.estimated_probability
-        else:
-            return children_prob + math.log(1 + pow(2, (self.root.estimated_probability_alpha - children_prob)), 2) \
-                   + math.log(1 / 2, 2)
-
-    def add_data_point(self, symbol, context):
-        """Will add the data point to tree."""
+        # Store the dirty nodes return by traversing the tree
         dirty_nodes = self.traverse_context(symbol, context)
+        # Re-weight the dirty nodes
         self.reweight_tree(dirty_nodes, symbol)
-        self.add_inverted_point(symbol, context)
+
+        # Add the inverted symbol/context pair if needed
+        if inverted is 'Y':
+            self.add_inverted_point(symbol, context)
 
     def add_inverted_point(self, symbol, context):
+        """
+        Will take symbol and context, transform them into the inverted complement
+        version and then add them to the tree
+        :param symbol: The symbol to be inverted
+        :param context: The context to be inverted
+        """
+
+        # Copy the context
         other_context = list(context)
+        # Adds the symbol to the context
         other_context.insert(0, symbol)
-        # print(other_context);
+        # Invert the context
+        inverted = inverted_complement(other_context)
+        # Take the first symbol as the new symbol to be added
+        new_symbol = inverted.pop(0)
 
-        reverse = inverted_complement(other_context)
-        new_symbol = reverse.pop(0)
-
-        # print(reverse, "Symbol: ", new_symbol)
-
-        dirty_nodes = self.traverse_context(new_symbol, reverse)
+        # store the dirty nodes
+        dirty_nodes = self.traverse_context(new_symbol, inverted)
+        #reweight the dirty ndoes
         self.reweight_tree(dirty_nodes, new_symbol)
 
     def read_file(self):
+        """
+        Will open a file that is specified by the user and give them options
+        on how to load it into the tree
+        :return:
+        """
+        # Opens an interface to select a file
         filename = askopenfilename()
+
+        # Shows the user the file-name
         print(filename)
 
+        # gets the file extension
         file_extension = filename.split(".")[-1]
-        iterator = None
-
+        # initialize a dict for storing the records
         records = dict()
 
-
+        #If compressed, uncompress
         if file_extension == "gz":
             filename = gzip.open(filename, "rt")
 
-        for r in SeqIO.parse(filename, "gb"):
-            records[r.id] = r.seq
+        # initialize variables to find longest record
+        longest = 0
+        longest_id = None
 
-        for key, value in records.items():
-            print("ID: ", key)
+        # checks for file-extension types
+        if file_extension == "fa":
+            for seq_record in SeqIO.parse(filename, "fasta"):
+                if(len(seq_record) > longest):
+                    longest_id = seq_record.id
+                    longest = len(seq_record)
+                #print(seq_record.id, " ", len(seq_record.seq))
+                records[seq_record.id] = seq_record.seq
+
+        else:
+            for seq_record in SeqIO.parse(filename, "gb"):
+                if(len(seq_record) > longest):
+                    longest_id = seq_record.id
+                    longest = len(seq_record)
+                records[seq_record.id] = seq_record.seq
+                print(seq_record.id, " ", len(seq_record.seq))
 
         print("\n")
-        file = input("What record do you want to open?")
-        file_seq = records[file]
+        file = input("What record do you want to open? [Input \"L\" for longest seqeunce]")
+        if file == 'L':
+            file_seq = records[longest_id]
+        else:
+            file_seq = records[file]
 
-        context = []
+
         print("Opened: " + file)
         print("Length: " + str(len(file_seq)))
 
-        read_type = input("How do you want to load the information: \n C : Competitively \n N : Normally \n")
+        self.load_seq(file_seq, file)
 
-        if read_type is "C":
+    def load_seq(self,file_seq, file):
+        """
+        A function to load in a given file sequence into the tree
+        :param file_seq: The sequence that will be added
+        :param file: The file's name
+        :return:
+        """
+
+        context = []
+        read_type = input("How do you want to load the information: \n B : Blocks \n S : Sequentially \n")
+        inverted = input("Do you want to add inverted complements?[Y/N]")
+        competitive = input("Do you to load it competitively?[Y/N]")
+
+        comp = 'Y' == competitive
+
+        # Checks for read type
+        if read_type is "B":
             block = list()
             block_seq = list()
             symbol_counter = 0
 
             max_symbols = int(input("How many symbols do you want to load?"))
-
             block_size = int(input("What block-size?"))
 
-            output_filename = file + "_MaxSym" + str(max_symbols) + "_depth_" + str(self.depth) + ".txt"
+            # Generate a filename based on the parameters inputted by the user
+            output_filename = file + "_S" + str(max_symbols) + "_BS" + str(block_size) + "_d" + str(self.depth) + "_Inv" + inverted + "_Comp" + str(competitive) + ".txt"
 
             for index, symbol in enumerate(file_seq):
 
                 if symbol is not "N":
 
+                    # Check to see if the desired amount of symbols has been loaded
                     if symbol_counter > max_symbols:
                         break
 
+                    # Add to the block
                     block.append(symbol)
                     symbol_counter += 1
 
-                    if len(block) is block_size:
+                    # If enough symbols in block, add it to the tree
+                    if len(block) == block_size:
                         printProgressBar(symbol_counter, max_symbols)
-                        block_seq.append(self.read_block(block))
+                        block_seq.append(self.read_block(block, inverted, comp))
                         del block[:]
 
             print('\n', "Length of block sequence", len(block_seq))
 
-            print_to_file(block_seq, "CTW_" + output_filename, "Fixed_Depth_" + output_filename)
+            # Print the results to a file
+            print_to_file(block_seq, "data_graphs/data/CTW_" + output_filename, "data_graphs/data/Fixed_Depth_" + output_filename)
 
-        elif read_type is "N":
+
+        elif read_type is "S":
             for index, symbol in enumerate(file_seq):
                 if len(context) is not self.depth:
                     #  Add to the context
                     context.insert(0, symbol)
                 else:
-                    #  Add to the tree
-                    # print("context: ", context)
-                    # print("symbol: ", symbol)
-
-                    self.add_data_point(symbol, context)
+                    self.add_data_point(symbol, context, inverted)
 
                     context.pop()
                     context.insert(0, symbol)
 
     def reweight_tree(self, dirtynodes, symbol):
+        """
+        Will re-weight all of the nodes affected by the addition of a new symbol/context pair
+
+        :param dirtynodes: A list of all the nodes that have been changed by the recent symbol/context pair
+        :param symbol: The symbol that was just added ( A C G or T)
+        :return: N/a
+        """
+        # Increment the count for the specific stored at the root
         self.root.counts[symbol] += 1
 
+        # For each node in the dirtnodes
         for node in dirtynodes:
+            # Update the log probability
             node.update_probability_log(symbol)
-
+        # And then update the probability of the root
         self.root.update_probability_log(symbol)
 
     def traverse_context(self, symbol, context):
+        """
+        Will go through the tree, follow the path of the given context
+        Will add nodes if they are not already present
+        :param symbol: The new symbol that is being added to the tree
+        :param context: The context of that symbol in the form of a list where
+                        context[0] is the symbol directly before the symbol being added
+        :return: A list of all the nodes either visited or created
+        """
+
         # Start at the root
         current_node = self.root
-        full_path = ""
+        # A list to store all the nodes that have been accessed
         dirty_nodes = []
+        # A counter to keep track of the depth
         depth = 1
         # For Each symbol in the context, traverse down from the root.
+        # Begin by looping through the context
         for sym in context:
-
-            full_path += sym
+            # Check if the child to the current node exists
             if current_node.children[sym] is not None:
+                # move to that node
                 current_node = current_node.children[sym]
             else:
+                # create a new node
                 current_node.children[sym] = Node(sym, current_node, current_node.tree, depth)
-                # self.depthTable[depth].append(current_node.children[sym])
+                # self.depthTable[depth].append(current_node.children[sym]) - Was commmented out because was adding a lot of computation time
+                # Move to the newly created node
                 current_node = current_node.children[sym]
+            # Increment depth
             depth += 1
+            # Add the current node to the list of dirty nodes
             dirty_nodes.insert(0, current_node)
+            # increment the symbol count of the current_node
             current_node.counts[symbol] += 1
 
         return dirty_nodes
 
     def print(self, tab):
+        """
+        Prints a representation of the Tree
+        :param tab: the character used for spacing
+        :return:
+        """
         print("Root: ", self.root.weighted_probability, " ", self.root.counts)
 
         for key, child in self.root.children.items():
@@ -533,32 +679,20 @@ class Tree:
             self.print(input('     Enter your tab char: '))
 
         elif command == "l" or command == "L":
-            print("Loading a file: ")
-            # TODO: Add in a way to manage the records, so to load a specific record
-
+            print("Loading file: ")
             self.read_file()
 
         elif command == "c" or command == "C":
             print_tree_commands()
 
-        if command is "b":
-            depth = input("what max depth do you want to calculate for? \n")
-            if depth.isdigit():
-                for x in range(0, int(depth) + 1):
-                    print(str(x) + ": ", self.read_weighted_probability(int(x)))
         if command is "t":
             depth = input("what depth do you want to access? \n")
             if depth.isdigit():
                 print(self.depthTable[int(depth)])
 
-        if command is "m":
-            depth = input("what depth do you want to calculate for? \n")
-            if depth.isdigit():
-                print(self.calculate_markov_prob(depth))
-
         if command is "e":
             for key, value in self.block_Pe.items():
-                print_to_file(value, "outputs/ " + str(key) + "Pw and Markov.mat")
+                print_to_file(value, "outputs/ " + str(key) + "Pw and Fixed_Depth.mat")
 
         if command is "q":
             print("Weighted Probabilities  stored in root: (a = 0.5)")
@@ -575,91 +709,123 @@ class Tree:
                 print("\t", key, ": ", value)
 
 
-# Kept just in case, bust should mostly be unused
-class Competition:
-    def __init__(self, max_depth, blocksize=200):
-        self.max_depth = max_depth
+class Codon(Tree):
+    """
+    An extenstion of the Tree object
+    """
+    def __init__(self, name, depth, alpha = False):
 
-        self.tree = Tree("MD:" + str(max_depth), max_depth)
-        self.blocksize = blocksize
-        #  Keeps track of the Pw and Pm of when each block was added
+        # The name of codon tree, used to identify it
+        self.name = name
+        # The maximum depth of the trees
+        self.depth = depth
 
-    def add_to_all(self, symbol, context_full):
-        #  sys.stdout.write("\rAdding symbol: %s With context: %s " % (symbol, context_full))
-        self.tree.add_data_point(symbol, context_full)
+        # This is used to store the changes in Pe as blocks are loaded in
+        self.block_Pe = defaultdict(list)
 
-    def read_file(self, file_handle, max_symbols, output_filename=("CTW.txt", "Markov.txt")):
-        records = dict()
+        # A dictionary to store the fixed depth probilities
+        self.fixed_depth_probabilities = dict()
+        self.fixed_depth_probabilities_alpha = dict()
 
-        for r in SeqIO.parse(file_handle, "gb"):
-            records[r.id] = r.seq
+        # Initialized the dictionaries
+        for x in range(0, depth + 1):
+            self.fixed_depth_probabilities[x] = 0
+            self.fixed_depth_probabilities_alpha[x] = 0
 
-        for key, value in records.items():
-            print("ID: ", key)
-        print("\n")
-        file = input("What record do you want to open?")
-        file_seq = records[file]
+        # Creates the three seperate trees that will be used to
+        # encode the inputted symbols
+        self.trees = {1 : Tree("Codon1",depth,alpha),
+                      2 : Tree("Codon2",depth,alpha),
+                      3 : Tree("Codon3",depth,alpha)}
 
+        # Keeps track of the next tree that will be used
+        self.current_tree = 1
+
+        # The currently considered root
+        self.root = self.trees[self.current_tree].root
+
+    def read_block(self, block, inverted, competitive):
+        """
+        Takes a block of symbols, generate symbol/context pairs and adds to the context
+        :param block: a set of symbols that will be loaded into the tree
+        :param inverted: A character that indicates whether or not to also add the inverted complement
+        :param competitive: A boolean that indicates whether or not the depths be considered competitively
+        :return: 4 values:
+                    1 - Depth of the tree
+                    2 - The value of that difference
+        """
+
+        context = []
+        previous_pw = 0
+
+        # Add together the weighted probability of all three trees
+        for keys, values in self.trees.items():
+            previous_pw += values.root.weighted_probabilities[self.depth]
+
+        # Loop through block
+        for index, symbol in enumerate(block):
+            # If not enough symbols in context
+            if len(context) is not self.depth:
+                #  Add to the context
+                context.insert(0, symbol)
+            else:
+                # Access the current tree and add the data point
+                self.trees[self.current_tree].add_data_point(symbol, context,inverted)
+                #Increment the current tree
+                self.current_tree += 1
+
+                # If > 3 change to 1
+                if self.current_tree is 4:
+                    self.current_tree = 1
+
+                # change the root
+                self.root = self.trees[self.current_tree].root
+
+                context.pop()
+                context.insert(0, symbol)
+
+        new_probability = 0
+
+        for keys, values in self.trees.items():
+            new_probability += values.root.weighted_probabilities[self.depth]
+
+        return self.depth, new_probability - previous_pw
+
+    def load_seq(self, file_seq, file):
+        context = []
         block = list()
-        blockseq = list()
-        symcounter = 0
+        block_seq = list()
+        symbol_counter = 0
+
+        max_symbols = int(input("How many symbols do you want to load?"))
+
+        block_size = int(input("What block-size?"))
+
+        inverted = input("Do you want to add inverted complements?[Y/N]")
+
+        output_filename = file + "_MaxS" + str(max_symbols) + "_d" + str(self.depth) + "_bs" + str(block_size) +"_Inv" + inverted + ".txt"
 
         for index, symbol in enumerate(file_seq):
 
             if symbol is not "N":
 
-                if symcounter > max_symbols:
+                if symbol_counter > max_symbols:
                     break
 
                 block.append(symbol)
-                symcounter += 1
+                symbol_counter += 1
 
-                if len(block) is self.blocksize:
-                    printProgressBar(symcounter, max_symbols)
-                    blockseq.append(self.read_block(block))
+                if len(block) == int(block_size):
+                    printProgressBar(symbol_counter, max_symbols)
+                    block_seq.append(self.read_block(block, inverted, False))
                     del block[:]
 
-        print('\n', "Length of block sequence", len(blockseq))
-        print_to_file(blockseq, output_filename[0], output_filename[1])
+        print('\n', "Length of block sequence", len(block_seq))
+
+        print_to_file(block_seq, "data_graphs/data/Codon_CTW_" + output_filename, "data_graphs/data/Codon_Fixed_Depth_" + output_filename)
 
 
-class Codon:
-    def __init__(self, max_depth, type="normal"):
-
-        # TODO: Make this change based on compettive or not
-        if type is "competitive":
-            print("TODO: SOMETHIGN ")
-
-        # Creates the three seperate trees that will be used for
-        self.trees = {1 : Tree("Codon1",max_depth),
-                      2 : Tree("Codon2",max_depth),
-                      3 : Tree("Codon3",max_depth)}
-
-        # Keeps track of the next tree that will be used
-        self.current_tree = 1
-        self.max_depth = max_depth
-
-        def read_block(block):
-            if len(block) % 3 is not 0:
-                print("Block is not a multiple of three, this could lead to some errors")
-
-            context = []
-
-            for index, symbol in enumerate(block):
-                if len(context) is not self.max_depth:
-                    #  Add to the context
-                    context.insert(0, symbol)
-                else:
-                    self.trees[self.current_tree].add_data_point(symbol, context)
-                    self.current_tree += 1
-                    if self.current_tree is 3:
-                        self.current_tree = 1
-
-                    context.pop()
-                    context.insert(0, symbol)
-
-
-def print_to_file(output, file1="CTW.txt", file2="markov.txt"):
+def print_to_file(output, file1="CTW.txt", file2="Fixed_Depth.txt"):
     with open(file1, 'w') as f:
         out = ""
         for item in output:
@@ -678,41 +844,23 @@ def print_to_file(output, file1="CTW.txt", file2="markov.txt"):
 
 def main():
 
-    # TODO: Investigate why the probabilities of the return values are wrong
-    # TODO: The ones return by the two methods of calculating the weighted probability are not correct
-    # TODO: Try loading it into a tree with fixed depth and check there what is correct
-    # TODO: do this for each tree
-
-    # TODO: Figure out how ALPHA is affecting the probabilities, since its having a strong effect on
-    # TODO: the overall probability, also send email asking this question
-
-    filename = "tree.profile"
-    pr = cProfile.Profile()
-    pr.enable()
-
-    # Allows for user input to interact with the functions above
     test_tree = Tree("Test5", 5)
     test_tree2 = Tree("Test16", 16)
 
     trees = dict()
-    #test = Competition(16)
-    #comp_test_2 = Competition(16)
+
+    test = Tree("test", 16)
     #test_output = list()
 
-    #block = []
-    #output = []
-    #for x in range(0, 200):
-    #    for y in range(0,200):
-    #        block.append(random.randint(1, 4))
-    #    block = int_to_ACGT(block)
-    #    print(len(block))
-    #    output.append(test.read_block(block))
-    #print_to_file(output, "update/ctw_random_block_-1_A.txt","update/fd_random_block_-1_A.txt")
-
-    #handle = gzip.open("hs_alt_CHM1_1.1_chr22.gbk.gz", "rt")
-
-    #test.read_file(handle, 40000, ("update/ctw_31_40000_1.txt","update/fd_31_40000_1.txt"))
-
+    block = []
+    output = []
+    for x in range(0, 200):
+        for y in range(0, 200):
+            block.append(random.randint(1, 4))
+        block = int_to_ACGT(block)
+        output.append(test.read_block(block,'N', False))
+        printProgressBar(x, 200)
+    print_to_file(output, "data_graphs\ctw_random_16.txt","fd_random_blockNoInverse_noA.txt")
 
     #print_trees(test.trees)
     #current_tree = test.tree
@@ -728,10 +876,6 @@ def main():
     print_commands()
 
     print_trees(trees)
-
-    pr.disable()
-    pr.dump_stats(filename)
-
     while 1:
 
         if current_tree is None:
@@ -739,8 +883,12 @@ def main():
             command = input('Enter your command: ')
             if command is "a":
                 tree_name = input("Name of the new tree: ")
-                depth_name = input("Depth:")
-                trees[tree_name] = Tree(tree_name, int(depth_name))
+                depth = input("Depth:")
+                type = input("Type? \n[N - Normal] \n[C- Codon]")
+                if type is "N" or type is "n":
+                    trees[tree_name] = Tree(tree_name, int(depth))
+                elif type is 'C' or type is 'c':
+                    trees[tree_name] = Codon(tree_name,int(depth))
                 print_trees(trees)
 
             elif command is "o":
@@ -753,6 +901,7 @@ def main():
 
             elif command is "d":
                 name = input("\tWhich tree do you want to remove?\n\t")
+                del trees[name]
                 trees.pop(name, None)
                 print_trees(trees)
 
