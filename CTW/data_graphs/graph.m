@@ -1,6 +1,9 @@
 
-rand16 = load('ctw_random_16.txt','-ASCII');
+codon12 = load('data/Codon_CTW_NW_004929429.1_MaxS30000_d12_bs300_InvN.txt','-ASCII');
+ctw12 = load('data/CTW_NW_004929429.1_S30000_BS300_d12_InvN_CompN.txt', '-ASCII');
 
+codon_data_C12 = load('data/Codon_CTW_L_MaxS99900_d12_bs300_InvN.txt','-ASCII');
+codon_data_N12 = load('data/CTW_L_S99900_BS300_d12_InvN_CompN.txt','-ASCII');
 %%
 fd_inv = load('data/Fixed_Depth_L_S99900_BS300_d12_InvY_CompN.txt','-ASCII');
 

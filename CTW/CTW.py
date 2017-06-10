@@ -223,14 +223,18 @@ class Node:
         self.tree.fixed_depth_probabilities_alpha[self.level] -= self.estimated_probability_alpha
 
         # Calculation of the estimated probability with alpha = 0.5
+        # Ths is the KT-Estimater as described for standard CTW usage.
+        # The '-1' is to account for the fact that the symbol counts have already been incremented
         self.estimated_probability += math.log((self.counts[symbol] - 1 + 0.5)
                                                / (total_count + 4*0.5), 2)
 
-        # Calculation of the estimated probability with alpha = 0.05
+        # Calculation of the estimated probability (PINHO)
+        # This is the same KT-estimater, expect with an alpha of 0.05 instead of 0.5
         self.estimated_probability_alpha += math.log((self.counts[symbol] - 1 + 0.05)
                                                / (total_count + 4*0.05), 2)
 
         # Re-adding to the fixed depth proabilities to account for the change
+        # These are the probabilities as described in the Pinho paper
         self.tree.fixed_depth_probabilities[self.level] += self.estimated_probability
         self.tree.fixed_depth_probabilities_alpha[self.level] += self.estimated_probability_alpha
 
@@ -238,9 +242,12 @@ class Node:
         children_prob = 0
 
         # Begin by going through all of the weighted probabilities
+        # These are the probabilities as described for CTW
         for key,value in self.weighted_probabilities.items():
             # If the level of the weighted probability of is the same as the level of the node:
-            # only return the estimated value, which is dependent on the level
+            # only return the estimated value.
+            # For example when calculating for a max depth of 8, the Pw of nodes at depth 8 is
+            # only the estimated probability.
             if key is self.level:
                 # If the level is greater than 11
                 if key > 11:
@@ -254,6 +261,9 @@ class Node:
                     # below 12, nominal estimated probability
                     self.weighted_probabilities[key] = self.estimated_probability
             else:
+                # So now we know that the children to this node should be taken into consideration
+                # when calculating the weighted probability of this node
+
                 # Stores the weighted probability of the children such that it can be used
                 # to update the weighted probability at this node
                 child_weight = 0
@@ -278,6 +288,8 @@ class Node:
         # This portion of code is used to update the singular
         # weighted probability, this was used before an update was made to consider
         # weighted probabilities of different levels
+        # These values are not used but is a hold over from a previous
+        # version of the implementation
 
         # First check to see if the depth is equal to level
         # Will affect the value used in the weighted prob.
@@ -296,6 +308,7 @@ class Node:
                 + math.log(1 / 2, 2))
         else:
             # If at the max-depth only use the estimated prob.
+            # because there are no children available.
             self.weighted_probability = self.estimated_probability
 
     def print(self, tab):
@@ -444,7 +457,11 @@ class Tree:
         :param context: The context to that symbol
         :param inverted: A char or either N or Y that determines if the inverted
                         complement should also be added
+        :return returns the change in probability from max depth
         """
+        # Store the previous prob:
+        previous_prob = self.root.weighted_probabilities[self.depth]
+
         # Store the dirty nodes return by traversing the tree
         dirty_nodes = self.traverse_context(symbol, context)
         # Re-weight the dirty nodes
@@ -453,6 +470,7 @@ class Tree:
         # Add the inverted symbol/context pair if needed
         if inverted is 'Y':
             self.add_inverted_point(symbol, context)
+        return  self.root.weighted_probabilities[self.depth] - previous_prob
 
     def add_inverted_point(self, symbol, context):
         """
@@ -522,9 +540,9 @@ class Tree:
         file = input("What record do you want to open? [Input \"L\" for longest seqeunce]")
         if file == 'L':
             file_seq = records[longest_id]
+            file = longest_id
         else:
             file_seq = records[file]
-
 
         print("Opened: " + file)
         print("Length: " + str(len(file_seq)))
@@ -581,17 +599,20 @@ class Tree:
             # Print the results to a file
             print_to_file(block_seq, "data_graphs/data/CTW_" + output_filename, "data_graphs/data/Fixed_Depth_" + output_filename)
 
-
         elif read_type is "S":
+            output_file = []
             for index, symbol in enumerate(file_seq):
-                if len(context) is not self.depth:
-                    #  Add to the context
-                    context.insert(0, symbol)
-                else:
-                    self.add_data_point(symbol, context, inverted)
+                if symbol is not 'N':
+                    if len(context) is not self.depth:
+                        #  Add to the context
+                        context.insert(0, symbol)
+                    else:
+                        output_file.append((self.depth, self.add_data_point(symbol, context, inverted)))
 
-                    context.pop()
-                    context.insert(0, symbol)
+                        context.pop()
+                        context.insert(0, symbol)
+            print_to_file(output_file, "data_graphs/data/sequentially/Sequential_"+ file + "_depth"+str(self.depth)+"_Inv" + str(inverted) + ".txt")
+
 
     def reweight_tree(self, dirtynodes, symbol):
         """
@@ -599,17 +620,13 @@ class Tree:
 
         :param dirtynodes: A list of all the nodes that have been changed by the recent symbol/context pair
         :param symbol: The symbol that was just added ( A C G or T)
-        :return: N/a
-        """
-        # Increment the count for the specific stored at the root
-        self.root.counts[symbol] += 1
+        :return: N/a        """
 
         # For each node in the dirtnodes
         for node in dirtynodes:
             # Update the log probability
             node.update_probability_log(symbol)
         # And then update the probability of the root
-        self.root.update_probability_log(symbol)
 
     def traverse_context(self, symbol, context):
         """
@@ -623,13 +640,23 @@ class Tree:
 
         # Start at the root
         current_node = self.root
+
         # A list to store all the nodes that have been accessed
         dirty_nodes = []
+
+        # increment the symbol count of the current_node
+        current_node.counts[symbol] += 1
+
+        # Add the current node to the list of dirty nodes
+        dirty_nodes.insert(0, current_node)
+
         # A counter to keep track of the depth
         depth = 1
         # For Each symbol in the context, traverse down from the root.
         # Begin by looping through the context
         for sym in context:
+
+
             # Check if the child to the current node exists
             if current_node.children[sym] is not None:
                 # move to that node
@@ -637,15 +664,18 @@ class Tree:
             else:
                 # create a new node
                 current_node.children[sym] = Node(sym, current_node, current_node.tree, depth)
-                # self.depthTable[depth].append(current_node.children[sym]) - Was commmented out because was adding a lot of computation time
+                # self.depthTable[depth].append(current_node.children[sym])
+                # Was commented out because was adding a lot of computation time
                 # Move to the newly created node
                 current_node = current_node.children[sym]
             # Increment depth
             depth += 1
-            # Add the current node to the list of dirty nodes
-            dirty_nodes.insert(0, current_node)
+
             # increment the symbol count of the current_node
             current_node.counts[symbol] += 1
+
+            # Add the current node to the list of dirty nodes
+            dirty_nodes.insert(0, current_node)
 
         return dirty_nodes
 
@@ -851,16 +881,6 @@ def main():
 
     test = Tree("test", 16)
     #test_output = list()
-
-    block = []
-    output = []
-    for x in range(0, 200):
-        for y in range(0, 200):
-            block.append(random.randint(1, 4))
-        block = int_to_ACGT(block)
-        output.append(test.read_block(block,'N', False))
-        printProgressBar(x, 200)
-    print_to_file(output, "data_graphs\ctw_random_16.txt","fd_random_blockNoInverse_noA.txt")
 
     #print_trees(test.trees)
     #current_tree = test.tree
