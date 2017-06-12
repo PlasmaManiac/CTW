@@ -527,7 +527,7 @@ class Tree:
                 if(len(seq_record) > longest):
                     longest_id = seq_record.id
                     longest = len(seq_record)
-                #print(seq_record.id, " ", len(seq_record.seq))
+                print(seq_record.id, " ", len(seq_record.seq))
                 records[seq_record.id] = seq_record.seq
 
         else:
