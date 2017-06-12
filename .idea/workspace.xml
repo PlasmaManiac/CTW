@@ -4,12 +4,8 @@
     <list default="true" id="1b5fecca-3824-4a2e-9db7-ece207af1004" name="Default" comment="Added some extra functionaltily for managment of the trees">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/CTW.py" afterPath="$PROJECT_DIR$/CTW/CTW.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/data_graphs/ctw_random_16.txt" afterPath="$PROJECT_DIR$/CTW/data_graphs/ctw_random_16.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/data_graphs/data/CTW_L_S99900_BS300_d12_InvN_CompN.txt" afterPath="$PROJECT_DIR$/CTW/data_graphs/data/CTW_L_S99900_BS300_d12_InvN_CompN.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/data_graphs/data/Codon_CTW_L_MaxS99900_d12_bs300_InvN.txt" afterPath="$PROJECT_DIR$/CTW/data_graphs/data/Codon_CTW_L_MaxS99900_d12_bs300_InvN.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/data_graphs/data/Fixed_Depth_L_S99900_BS300_d12_InvN_CompN.txt" afterPath="$PROJECT_DIR$/CTW/data_graphs/data/Fixed_Depth_L_S99900_BS300_d12_InvN_CompN.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/data_graphs/graph.m" afterPath="$PROJECT_DIR$/CTW/data_graphs/graph.m" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/fd_random_blockNoInverse_noA.txt" afterPath="$PROJECT_DIR$/CTW/fd_random_blockNoInverse_noA.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CTW/data_graphs/plot_2graphs.m" afterPath="$PROJECT_DIR$/CTW/data_graphs/plot_2graphs.m" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -30,11 +26,11 @@
       <file leaf-file-name="CTW.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
-              <caret line="614" column="0" lean-forward="true" selection-start-line="614" selection-start-column="0" selection-end-line="614" selection-end-column="0" />
+            <state relative-caret-position="180">
+              <caret line="858" column="0" lean-forward="false" selection-start-line="858" selection-start-column="0" selection-end-line="858" selection-end-column="0" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <element signature="e#27223#29000#0" expanded="false" />
+                <element signature="e#27558#29335#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -51,19 +47,12 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>children_prob</find>
-      <find>depthTable</find>
-      <find>previous_root_prob_markov</find>
-      <find>markov</find>
-      <find>fixed_depth</find>
-      <find>calculate_Fixed_Depth_prob</find>
       <find>read_weighted_probability</find>
       <find>commadn</find>
       <find>commands</find>
       <find>full_path</find>
       <find>load_seq</find>
       <find>def read</find>
-      <find>load_</find>
       <find>trave</find>
       <find>rew</find>
       <find>traverse</find>
@@ -76,11 +65,18 @@
       <find>Sequence</find>
       <find>Sequenc</find>
       <find>How do you</find>
-      <find>add_data_point</find>
-      <find>read_block</find>
       <find>add_data</find>
       <find>how do you want</find>
       <find>seq</find>
+      <find>main</find>
+      <find>add_da</find>
+      <find>add_data_point</find>
+      <find>sequenti</find>
+      <find>sequen</find>
+      <find>load_</find>
+      <find>read_block</find>
+      <find>current_tree</find>
+      <find>codon</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -118,8 +114,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -148,6 +142,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -353,14 +349,14 @@
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17708333" sideWeight="0.4961665" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37239867" sideWeight="0.228125" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33406353" sideWeight="0.32395834" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32968238" sideWeight="0.49791667" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33406353" sideWeight="0.70729166" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33406353" sideWeight="0.67604166" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.06458333" sideWeight="0.50383353" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37239867" sideWeight="0.771875" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37239867" sideWeight="0.71510416" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -389,7 +385,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="103" />
+      <option name="time" value="125" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
@@ -406,7 +402,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -417,7 +413,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -428,7 +424,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -439,7 +435,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -450,7 +446,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -461,7 +457,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -472,7 +468,29 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#27558#29335#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -490,7 +508,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -501,7 +519,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -512,7 +530,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -523,7 +541,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -534,7 +552,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -621,21 +639,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CTW/SequentialL_depth5_InvN.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="110">
-          <caret line="5" column="22" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="16563" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/CTW/SequentialL_depth5_InvN.txt" />
     <entry file="file://$PROJECT_DIR$/CTW/CTW.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="614" column="0" lean-forward="true" selection-start-line="614" selection-start-column="0" selection-end-line="614" selection-end-column="0" />
+        <state relative-caret-position="180">
+          <caret line="858" column="0" lean-forward="false" selection-start-line="858" selection-start-column="0" selection-end-line="858" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#27223#29000#0" expanded="false" />
+            <element signature="e#27558#29335#0" expanded="false" />
           </folding>
         </state>
       </provider>

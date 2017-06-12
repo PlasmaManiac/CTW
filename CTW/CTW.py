@@ -226,12 +226,12 @@ class Node:
         # Ths is the KT-Estimater as described for standard CTW usage.
         # The '-1' is to account for the fact that the symbol counts have already been incremented
         self.estimated_probability += math.log((self.counts[symbol] - 1 + 0.5)
-                                               / (total_count + 4*0.5), 2)
+                                               / (total_count - 1 + 4*0.5), 2)
 
         # Calculation of the estimated probability (PINHO)
         # This is the same KT-estimater, expect with an alpha of 0.05 instead of 0.5
         self.estimated_probability_alpha += math.log((self.counts[symbol] - 1 + 0.05)
-                                               / (total_count + 4*0.05), 2)
+                                               / (total_count - 1 + 4*0.05), 2)
 
         # Re-adding to the fixed depth proabilities to account for the change
         # These are the probabilities as described in the Pinho paper
@@ -356,7 +356,7 @@ class Tree:
             self.fixed_depth_probabilities[x] = 0
             self.fixed_depth_probabilities_alpha[x] = 0
 
-    def read_block(self, block, inverted, competitive):
+    def read_block(self, block, inverted, competitive, previous_context):
         """
         Takes a block of symbols, generate symbol/context pairs and adds to the context
         :param block: a set of symbols that will be loaded into the tree
@@ -369,7 +369,7 @@ class Tree:
                     4 - The value of the difference (fixed depth)
         """
         # Initialize a list used for the context
-        context = []
+        context = previous_context
         # A dictionary used to store the previous root values
         previous_root_prob = dict()
         # A dictionary that stores the previous fixed depth prob
@@ -425,13 +425,15 @@ class Tree:
             return max(difference, key=difference.get), \
                    difference[max(difference, key=difference.get)],\
                    max(difference_Fixed_Depth, key=difference_Fixed_Depth.get),\
-                   difference_Fixed_Depth[max(difference_Fixed_Depth, key=difference_Fixed_Depth.get)]
+                   difference_Fixed_Depth[max(difference_Fixed_Depth, key=difference_Fixed_Depth.get)],\
+                   context
         else:
             # Otherwise return the value at the max depth
             return self.depth, \
                    difference[self.depth], \
                    max(difference_Fixed_Depth, key=difference_Fixed_Depth.get), \
-                   difference_Fixed_Depth[max(difference_Fixed_Depth, key=difference_Fixed_Depth.get)]
+                   difference_Fixed_Depth[max(difference_Fixed_Depth, key=difference_Fixed_Depth.get)],\
+                   context
 
     def best_tree(self):
 
@@ -470,7 +472,7 @@ class Tree:
         # Add the inverted symbol/context pair if needed
         if inverted is 'Y':
             self.add_inverted_point(symbol, context)
-        return  self.root.weighted_probabilities[self.depth] - previous_prob
+        return self.root.weighted_probabilities[self.depth] - previous_prob
 
     def add_inverted_point(self, symbol, context):
         """
@@ -576,6 +578,7 @@ class Tree:
             # Generate a filename based on the parameters inputted by the user
             output_filename = file + "_S" + str(max_symbols) + "_BS" + str(block_size) + "_d" + str(self.depth) + "_Inv" + inverted + "_Comp" + str(competitive) + ".txt"
 
+            previous_context = []
             for index, symbol in enumerate(file_seq):
 
                 if symbol is not "N":
@@ -591,17 +594,20 @@ class Tree:
                     # If enough symbols in block, add it to the tree
                     if len(block) == block_size:
                         printProgressBar(symbol_counter, max_symbols)
-                        block_seq.append(self.read_block(block, inverted, comp))
+                        block_seq.append(self.read_block(block, inverted, comp,previous_context))
+                        previous_context = block_seq[len(block_seq) - 1][4]
                         del block[:]
 
             print('\n', "Length of block sequence", len(block_seq))
 
             # Print the results to a file
-            print_to_file(block_seq, "data_graphs/data/CTW_" + output_filename, "data_graphs/data/Fixed_Depth_" + output_filename)
+            print_to_file(block_seq, "data_graphs/data/CTW/CTW_" + output_filename, "data_graphs/data/Fixed_Depth/Fixed_Depth_" + output_filename)
 
         elif read_type is "S":
             output_file = []
+            total_length = len(file_seq)
             for index, symbol in enumerate(file_seq):
+                printProgressBar(index, total_length)
                 if symbol is not 'N':
                     if len(context) is not self.depth:
                         #  Add to the context
@@ -774,7 +780,7 @@ class Codon(Tree):
         # The currently considered root
         self.root = self.trees[self.current_tree].root
 
-    def read_block(self, block, inverted, competitive):
+    def read_block(self, block, inverted, competitive, previous_context):
         """
         Takes a block of symbols, generate symbol/context pairs and adds to the context
         :param block: a set of symbols that will be loaded into the tree
@@ -785,7 +791,7 @@ class Codon(Tree):
                     2 - The value of that difference
         """
 
-        context = []
+        context = previous_context
         previous_pw = 0
 
         # Add together the weighted probability of all three trees
@@ -819,40 +825,70 @@ class Codon(Tree):
         for keys, values in self.trees.items():
             new_probability += values.root.weighted_probabilities[self.depth]
 
-        return self.depth, new_probability - previous_pw
+        return self.depth, new_probability - previous_pw, context
 
     def load_seq(self, file_seq, file):
         context = []
+        read_type = input("How do you want to load the information: \n B : Blocks \n S : Sequentially \n")
+        inverted = input("Do you want to add inverted complements?[Y/N]")
+
         block = list()
         block_seq = list()
         symbol_counter = 0
 
-        max_symbols = int(input("How many symbols do you want to load?"))
+        if read_type is 'B':
+            max_symbols = int(input("How many symbols do you want to load?"))
+            block_size = int(input("What block-size?"))
 
-        block_size = int(input("What block-size?"))
+            output_filename = file + "_MaxS" + str(max_symbols) + "_d" + str(self.depth) + "_bs" + str(block_size) +"_Inv" + inverted + ".txt"
 
-        inverted = input("Do you want to add inverted complements?[Y/N]")
+            previous_context = []
+            for index, symbol in enumerate(file_seq):
 
-        output_filename = file + "_MaxS" + str(max_symbols) + "_d" + str(self.depth) + "_bs" + str(block_size) +"_Inv" + inverted + ".txt"
+                if symbol is not "N":
 
-        for index, symbol in enumerate(file_seq):
+                    if symbol_counter > max_symbols:
+                        break
 
-            if symbol is not "N":
+                    block.append(symbol)
+                    symbol_counter += 1
 
-                if symbol_counter > max_symbols:
-                    break
+                    if len(block) == int(block_size):
+                        printProgressBar(symbol_counter, max_symbols)
+                        block_seq.append(self.read_block(block, inverted, False, previous_context))
+                        previous_context = block_seq[len(block_seq) - 1][2]
+                        del block[:]
 
-                block.append(symbol)
-                symbol_counter += 1
+            print('\n', "Length of block sequence", len(block_seq))
 
-                if len(block) == int(block_size):
-                    printProgressBar(symbol_counter, max_symbols)
-                    block_seq.append(self.read_block(block, inverted, False))
-                    del block[:]
+            print_to_file(block_seq, "data_graphs/data/Codon_CTW_" + output_filename, "data_graphs/data/Codon_Fixed_Depth_" + output_filename)
 
-        print('\n', "Length of block sequence", len(block_seq))
+        elif read_type is 'S':
+            output_file = []
+            total_length = len(file_seq)
+            for index, symbol in enumerate(file_seq):
+                printProgressBar(index, total_length)
+                if symbol is not 'N':
+                    if len(context) is not self.depth:
+                        #  Add to the context
+                        context.insert(0, symbol)
+                    else:
+                        output_file.append((self.depth, self.add_data_point(symbol, context, inverted)))
+                        context.pop()
+                        context.insert(0, symbol)
 
-        print_to_file(block_seq, "data_graphs/data/Codon_CTW_" + output_filename, "data_graphs/data/Codon_Fixed_Depth_" + output_filename)
+                        # Increment the current tree
+                        self.current_tree += 1
+
+                        # If > 3 change to 1
+                        if self.current_tree is 4:
+                            self.current_tree = 1
+
+                        # change the root
+                        self.root = self.trees[self.current_tree].root
+
+            print_to_file(output_file, "data_graphs/data/sequentially/Codon_Sequential_" + file + "_depth" + str(
+                self.depth) + "_Inv" + str(inverted) + ".txt")
 
 
 def print_to_file(output, file1="CTW.txt", file2="Fixed_Depth.txt"):
@@ -874,7 +910,7 @@ def print_to_file(output, file1="CTW.txt", file2="Fixed_Depth.txt"):
 
 def main():
 
-    test_tree = Tree("Test5", 5)
+    test_tree = Tree("Test7", 7)
     test_tree2 = Tree("Test16", 16)
 
     trees = dict()
@@ -890,7 +926,7 @@ def main():
     trees[test_tree2.name] = test_tree2
 
     # current_tree = current_tree.best_tree()
-    current_tree = test_tree
+    current_tree = test_tree2
 
     # Table of commands
     print_commands()
