@@ -8,24 +8,25 @@ hold on
 hold off
 title('Change in Pe')
 
+axis = [1:1:length(data1(:,2))] * block_size;
+
 figure;
 % Code word length calculation:
 
+plot(axis,abs(log2(2.^data1(:,2) ) / (block_size  ) ), 'linewidth',1.5) 
 hold on 
-plot(abs(log2(2.^data1(:,2) ) / block_size )) 
-plot(abs(log2(2.^data2(:,2) ) / block_size ))
+plot(axis,abs(log2(2.^data2(:,2) ) / (block_size) ), 'linewidth',0.5)
 hold off
 
 legend(label1, label2)
-ylim([0 3])
 grid on
 title('Average Code Word Length per Symbol')
-xlabel('Block Number')
+xlabel('Symbol')
 ylabel('Average Code Word Length [bits]')
 
 
 figure;
-plot(data2(:,1))
+plot(axis,data2(:,1))
 title('Best Depth per block')
 xlabel('Depth')
 ylabel('Average Code Word Length [bits]')

@@ -22,7 +22,6 @@ def print_tree_commands():
     print("c - Show commands")
     print("x - Exit current tree")
 
-
 def print_commands():
     """
     Helper function - Prints the options when not-in a tree
@@ -503,6 +502,9 @@ class Tree:
         :return:
         """
         # Opens an interface to select a file
+
+        p = cProfile.Profile()
+        p.enable()
         filename = askopenfilename()
 
         # Shows the user the file-name
@@ -550,6 +552,8 @@ class Tree:
         print("Length: " + str(len(file_seq)))
 
         self.load_seq(file_seq, file)
+        p.disable()
+        p.dump_stats("CTW.profile")
 
     def load_seq(self,file_seq, file):
         """
@@ -911,7 +915,7 @@ def print_to_file(output, file1="CTW.txt", file2="Fixed_Depth.txt"):
 def main():
 
     test_tree = Tree("Test7", 7)
-    test_tree2 = Tree("Test16", 16)
+    test_tree2 = Tree("Test16", 16, True)
 
     trees = dict()
 
